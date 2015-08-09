@@ -4,8 +4,26 @@ Twitter home timeline to mail.
 
 ## Description
 
+This utility should run periodically by cron.
+
 Get your timeline messages
 and send them to you by mail.
+
+## Install
+
+Go to http://apps.twitter.com and register application.
+Then
+
+```sh
+cd path/to/thtm
+bundle install
+cp --interactive .thtmrc.yml.example .thtmrc.yml
+```
+
+Then set mail and twitter api configuration in `.thtm.yml`.
+
+Then create cron task like that:
+`bundle exec 'ruby path/to/thtm.rb'`
 
 ## Limitations/Bugs
 
