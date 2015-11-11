@@ -62,7 +62,7 @@ messages.each do |message|
              name: message.user.screen_name,
              date: message.created_at)
 
-  b = format("%{name}\n\n%{text}\n\n%{url}",
+  b = format("@%{name}\n\n%{text}\n\n%{url}",
              name: message.user.screen_name,
              text: message.text,
              screen_name: message.user.screen_name,
