@@ -1,6 +1,6 @@
-# thtm
+# twitma
 
-Twitter home timeline to mail.
+Twitter timeline mailer.
 
 ## Description
 
@@ -15,15 +15,15 @@ Go to http://apps.twitter.com and register application.
 Then
 
 ```sh
-cd path/to/thtm
+cd path/to/twitma
 bundle install
-cp --interactive .thtmrc.yml.example .thtmrc.yml
+cp --interactive .twitmarc.yml.example .twitmarc.yml
 ```
 
-Then set mail and twitter api configuration in `.thtm.yml`.
+Then set mail and twitter api configuration in `.twitma.yml`.
 
 Then create cron task like that:
-`bundle exec 'ruby path/to/thtm.rb'`
+`bundle exec 'ruby path/to/twitma.rb'`
 
 ## Limitations/Bugs
 

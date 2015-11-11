@@ -6,8 +6,8 @@ require 'twitter'
 require 'yaml'
 
 ROOT = Pathname(__FILE__).dirname
-CONFIG = ROOT.join('.thtmrc.yml')
-READED_IDS = ROOT.join('.thtm.yml')
+CONFIG = ROOT.join('.twitmarc.yml')
+READED_IDS = ROOT.join('.twitma.yml')
 
 config = File.exist?(CONFIG) ? YAML.load_file(CONFIG) : {}
 
@@ -39,6 +39,9 @@ end
 
 messages = client.home_timeline(count: COUNT)
 
+# File.open('/tmp/foo_bar.yml', 'w') { |f| f.write messages.to_yaml }
+# messages = YAML.load_file('/tmp/foo_bar.yml')
+
 messages.sort_by!(&:created_at)
 
 puts("Loaded messages: #{messages.size}") if VERBOSE
@@ -55,14 +58,17 @@ end
 messages.each do |message|
   next if readed_ids.include?(message.id)
 
-  s = format('@%{screen_name} %{created_at}',
-             screen_name: message.user.screen_name,
-             created_at: message.created_at)
+  s = format('@%{name} %{date}',
+             name: message.user.screen_name,
+             date: message.created_at)
 
-  b = format("%{text}\n--\nhttps://twitter.com/%{screen_name}/status/%{id}",
+  b = format("%{name}\n\n%{text}\n\n%{url}",
+             name: message.user.screen_name,
              text: message.text,
-             id: message.id,
-             screen_name: message.user.screen_name)
+             screen_name: message.user.screen_name,
+             url: format('https://twitter.com/%{name}/status/%{id}',
+                         name: message.user.screen_name,
+                         id: message.id))
 
   mail = Mail.new do
     from FROM
