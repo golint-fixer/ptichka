@@ -108,3 +108,23 @@ func TestLoadConfig(t *testing.T) {
 			"your-access-token-secret")
 	}
 }
+
+func TestLoadIds(t *testing.T) {
+	var jsonBlob = []byte(`[
+"first-id",
+"second-id"
+]`)
+	var got, wont string
+
+	got = loadIds(jsonBlob)[0]
+	wont = "first-id"
+	if got != wont {
+		t.Errorf("loadIds(jsonBlob)[n] == %v, want %v", got, wont)
+	}
+
+	got = loadIds(jsonBlob)[1]
+	wont = "second-id"
+	if got != wont {
+		t.Errorf("loadIds(jsonBlob)[n] == %v, want %v", got, wont)
+	}
+}

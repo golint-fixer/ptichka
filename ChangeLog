@@ -2,6 +2,7 @@
 
         * twitma.go (twitmaConfig): Add `twitmaConfig` struct.
         * twitma.go (loadConfig): Add `loadConfig` function.
+        * twitma.go (loadIds): Add `loadIds` function.
 
 2015-11-11  Danil Kutkevich  <danil@kutkevich.org>
 
