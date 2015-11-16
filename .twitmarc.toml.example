@@ -1,0 +1,24 @@
+cache_file = ".twitma.json"
+count = 200
+label = "twitter"
+verbose = true
+
+[mail]
+  from = "noreply@example.com"
+  to = "your.mail@example.org"
+  method = "smtp"
+
+  [mail.smtp]
+    address = "mail.example.com"
+    authentication = "plain"
+    password = "your_password"
+    port = 25
+    ssl = false
+    tls = false
+    user_name = "your.mail@example.org"
+
+[twitter]
+  consumer_key = "your-consumer-key"
+  consumer_secret = "your-consumer-secret"
+  access_token = "your-access-token"
+  access_token_secret = "your-access-token-secret"

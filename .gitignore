@@ -1,2 +1,4 @@
 /.twitma.yml
-/.twitmarc.yml
+/.twitmarc.toml
+/twitma
+/twitma.test

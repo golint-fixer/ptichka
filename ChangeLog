@@ -1,3 +1,8 @@
+2015-11-16  Danil Kutkevich  <danil@kutkevich.org>
+
+        * twitma.go (twitmaConfig): Add `twitmaConfig` struct.
+        * twitma.go (loadConfig): Add `loadConfig` function.
+
 2015-11-11  Danil Kutkevich  <danil@kutkevich.org>
 
         * thtm.rb: Rename to twitma.rb
