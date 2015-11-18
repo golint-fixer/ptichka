@@ -1,9 +1,16 @@
 package main
 
-import "testing"
+import (
+	"io/ioutil"
+	"os"
+	"testing"
+)
 
 func TestLoadConfig(t *testing.T) {
-	config := loadConfig(".twitmarc.toml.example")
+	config, err := loadConfig(".twitmarc.toml.example")
+	if err != nil {
+		t.Errorf("Error on loadConfig(\".twitmarc.toml.example\"): %v", err)
+	}
 
 	if config.CacheFile != ".twitma.json" {
 		t.Errorf(
@@ -114,15 +121,30 @@ func TestLoadIds(t *testing.T) {
 "first-id",
 "second-id"
 ]`)
+
+	tempFile, err := ioutil.TempFile(os.TempDir(), "twitma_test_ids_")
+	if err != nil {
+		t.Errorf("Error on create temporary file: %v", err)
+	}
+
+	ioutil.WriteFile(tempFile.Name(), jsonBlob, 0644)
+
+	ids, err := loadIds(tempFile.Name())
+	if err != nil {
+		t.Errorf("Error on loadIds(tempFile): %v", err)
+	}
+
+	defer os.Remove(tempFile.Name())
+
 	var got, wont string
 
-	got = loadIds(jsonBlob)[0]
+	got = ids[0]
 	wont = "first-id"
 	if got != wont {
 		t.Errorf("loadIds(jsonBlob)[n] == %v, want %v", got, wont)
 	}
 
-	got = loadIds(jsonBlob)[1]
+	got = ids[1]
 	wont = "second-id"
 	if got != wont {
 		t.Errorf("loadIds(jsonBlob)[n] == %v, want %v", got, wont)

@@ -5,6 +5,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"log"
+	// "os"
 )
 
 type twitmaConfig struct {
@@ -34,28 +35,48 @@ type twitmaConfig struct {
 	}
 }
 
-var config *twitmaConfig
+func loadConfig(path string) (*twitmaConfig, error) {
+	var config *twitmaConfig
 
-func loadConfig(path string) *twitmaConfig {
-	if _, err := toml.DecodeFile(path, &config); err != nil {
-		log.Fatal(err)
-	}
-	return config
+	_, err := toml.DecodeFile(path, &config)
+
+	return config, err
 }
 
-func loadIds(jsonBlob []byte) []string {
+func loadIds(path string) ([]string, error) {
 	var ids []string
-	if err := json.Unmarshal(jsonBlob, &ids); err != nil {
-		log.Fatal(err)
-	}
-	return ids
-}
 
-func main() {
-	config = loadConfig(".twitmarc.toml")
-	file, err := ioutil.ReadFile(config.CacheFile)
+	jsonBlob, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	print(loadIds(file)[0])
+
+	err = json.Unmarshal(jsonBlob, &ids)
+
+	return ids, err
+}
+
+// func exists(path string) (bool, error) {
+// 	_, err := os.Stat(path)
+// 	if err == nil {
+// 		return true, nil
+// 	}
+// 	if os.IsNotExist(err) {
+// 		return false, nil
+// 	}
+// 	return true, err
+// }
+
+func main() {
+	config, err := loadConfig(".twitmarc.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ids, err := loadIds(config.CacheFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	print(ids[0])
 }
