@@ -117,10 +117,7 @@ func TestLoadConfig(t *testing.T) {
 }
 
 func TestLoadIds(t *testing.T) {
-	var jsonBlob = []byte(`[
-"first-id",
-"second-id"
-]`)
+	var jsonBlob = []byte(`["first-id", "second-id"]`)
 
 	tempFile, err := ioutil.TempFile(os.TempDir(), "twitma_test_ids_")
 	if err != nil {
