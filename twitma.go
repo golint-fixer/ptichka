@@ -3,12 +3,41 @@ package main
 import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
+	// "github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
 	"os"
 )
 
-type twitmaConfig struct {
+func main() {
+	config, err := loadConfig(".twitmarc.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ids, err := loadIds(config.CacheFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(ids) > 0 {
+		print(ids[0])
+	} else {
+		print("Have no ids(")
+	}
+
+	// tweets, err := fetchTweets(config)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// j, err := json.Marshal(tweets)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// ioutil.WriteFile("foobar.json", j, 0644)
+}
+
+type config struct {
 	CacheFile string `toml:"cache_file"`
 	Count     int
 	Label     string
@@ -35,26 +64,8 @@ type twitmaConfig struct {
 	}
 }
 
-func main() {
-	config, err := loadConfig(".twitmarc.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ids, err := loadIds(config.CacheFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if len(ids) > 0 {
-		print(ids[0])
-	} else {
-		print("Have no ids(")
-	}
-}
-
-func loadConfig(path string) (*twitmaConfig, error) {
-	var config *twitmaConfig
+func loadConfig(path string) (*config, error) {
+	var config *config
 
 	_, err := toml.DecodeFile(path, &config)
 
@@ -88,6 +99,14 @@ func loadIds(path string) ([]string, error) {
 
 	return ids, err
 }
+
+// func fetchTweets(config *config) ([]anaconda.Tweet, error) {
+// 	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
+// 	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
+// 	api := anaconda.NewTwitterApi(config.Twitter.AccessToken, config.Twitter.AccessTokenSecret)
+// 	tweets, err := api.GetHomeTimeline(nil)
+// 	return tweets, err
+// }
 
 func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
