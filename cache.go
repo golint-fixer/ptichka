@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	// "github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
 	"os"
@@ -24,16 +23,22 @@ func loadCache(path string) ([]string, error) {
 		}
 	} else {
 		jsonBlob = []byte(`[]`)
-		// prettyJsonBlob, err := json.MarshalIndent(jsonBlob, "", "    ")
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
 		ioutil.WriteFile(path, jsonBlob, 0644)
 	}
 
 	err = json.Unmarshal(jsonBlob, &ids)
 
 	return ids, err
+}
+
+func saveCache(path string, ids []string) (error) {
+	jsonBlob, err := json.MarshalIndent(ids, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = ioutil.WriteFile(path, jsonBlob, 0644)
+
+	return err
 }
 
 func pathExists(path string) (bool, error) {
