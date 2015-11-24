@@ -22,14 +22,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// j, err := json.Marshal(tweets)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// ioutil.WriteFile("foobar.json", j, 0644)
 	newIds := oldIds
 	for _, tweet := range tweets {
-		if contains(oldIds, tweet.IdStr) == false {
+		if !contains(oldIds, tweet.IdStr) {
 			newIds = append(newIds, tweet.IdStr)
 			print("aaaaaaaaaaaaa: ")
 		}
