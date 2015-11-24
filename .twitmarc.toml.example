@@ -1,6 +1,6 @@
 cache_file = ".twitma.json"
 count = 200
-label = "twitter"
+label = "[twitter] "
 verbose = true
 
 [mail]

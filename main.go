@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
+	"time"
 )
 
 func main() {
@@ -26,22 +28,42 @@ func main() {
 	for _, tweet := range tweets {
 		if !contains(oldIds, tweet.IdStr) {
 			newIds = append(newIds, tweet.IdStr)
-			print("aaaaaaaaaaaaa: ")
+
+			t, err := time.Parse(time.RubyDate, tweet.CreatedAt)
+			if err != nil {
+				log.Fatal(err)
+			}
+			createdAt := t.Format("2006-01-02 15:04 -0700")
+
+			print("id: ")
+			print(tweet.IdStr)
+			print("\n")
+			print("\n")
+
+			fmt.Printf("%v@%v %v", config.Label, tweet.User.ScreenName, createdAt)
+			print("\n")
+			print("\n")
+
+			print("@" + tweet.User.ScreenName)
+			print("\n")
+			print("\n")
+
+			print(tweet.Text)
+			print("\n")
+			print("\n")
+
+			fmt.Printf(
+				"https://twitter.com/%v/status/%v",
+				tweet.User.ScreenName,
+				tweet.IdStr)
+			print("\n")
+
+			print("\n")
+			print("\n")
 		}
-		print(tweet.IdStr)
-		print("\n")
 	}
 	if err := saveCache("xyz.json", newIds); err != nil {
 		log.Fatal(err)
-	}
-	if len(newIds) > len(oldIds) {
-		print(len(newIds))
-		print("\n")
-		print(len(oldIds))
-		print("\n")
-		print("bbbbbbbbbbbb: ")
-		print(newIds[0])
-		print("\n")
 	}
 }
 

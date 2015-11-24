@@ -22,7 +22,7 @@ func TestLoadConfig(t *testing.T) {
 			config.Count,
 			200)
 	}
-	if config.Label != "twitter" {
+	if config.Label != "[twitter] " {
 		t.Errorf(
 			"loadConfig(\".twitmarc.toml.example\").Count == %v, want %v",
 			config.Count,
