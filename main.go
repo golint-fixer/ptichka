@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
@@ -29,6 +28,8 @@ func main() {
 		if !contains(oldIds, tweet.IdStr) {
 			newIds = append(newIds, tweet.IdStr)
 
+			user := "@" + tweet.User.ScreenName
+
 			t, err := time.Parse(time.RubyDate, tweet.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
@@ -40,11 +41,12 @@ func main() {
 			print("\n")
 			print("\n")
 
-			fmt.Printf("%v@%v %v", config.Label, tweet.User.ScreenName, createdAt)
+			subject := config.Label + user + " " + createdAt
+			print(subject)
 			print("\n")
 			print("\n")
 
-			print("@" + tweet.User.ScreenName)
+			print(user)
 			print("\n")
 			print("\n")
 
@@ -52,10 +54,11 @@ func main() {
 			print("\n")
 			print("\n")
 
-			fmt.Printf(
-				"https://twitter.com/%v/status/%v",
-				tweet.User.ScreenName,
-				tweet.IdStr)
+			body := "https://twitter.com/" +
+				tweet.User.ScreenName +
+				"/status/" +
+				tweet.IdStr
+			print(body)
 			print("\n")
 
 			print("\n")
