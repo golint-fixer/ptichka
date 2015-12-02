@@ -1,3 +1,7 @@
+2015-12-02  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): Tweet body templating investigation.
+
 2015-11-21  Danil Kutkevich  <danil@kutkevich.org>
 
         * cache.go (loadIds): Add `saveCache` function.

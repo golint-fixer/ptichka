@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
+	"text/template"
 	"time"
 )
 
@@ -24,40 +26,29 @@ func main() {
 		log.Fatal(err)
 	}
 	newIds := oldIds
-	for _, tweet := range tweets {
-		if !contains(oldIds, tweet.IdStr) {
-			newIds = append(newIds, tweet.IdStr)
+	for _, currentTweet := range tweets {
+		if !contains(oldIds, currentTweet.IdStr) {
+			newIds = append(newIds, currentTweet.IdStr)
 
-			user := "@" + tweet.User.ScreenName
-
-			t, err := time.Parse(time.RubyDate, tweet.CreatedAt)
+			t, err := time.Parse(time.RubyDate, currentTweet.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
 			}
 			createdAt := t.Format("2006-01-02 15:04 -0700")
 
-			print("id: ")
-			print(tweet.IdStr)
-			print("\n")
-			print("\n")
+			subject := config.Label + "@" + currentTweet.User.ScreenName + " " + createdAt
 
-			subject := config.Label + user + " " + createdAt
 			print(subject)
 			print("\n")
 			print("\n")
 
-			print(user)
-			print("\n")
-			print("\n")
-
-			print(tweet.Text)
-			print("\n")
-			print("\n")
-
-			body := "https://twitter.com/" +
-				tweet.User.ScreenName +
-				"/status/" +
-				tweet.IdStr
+			body, err := tweetBody(tweet{
+				currentTweet.IdStr,
+				currentTweet.User.ScreenName,
+				currentTweet.Text})
+			if err != nil {
+				panic(err)
+			}
 			print(body)
 			print("\n")
 
@@ -68,6 +59,30 @@ func main() {
 	if err := saveCache("xyz.json", newIds); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type tweet struct {
+	ID   string
+	User string
+	Text string
+}
+
+func tweetBody(tweet tweet) (string, error) {
+	tmpl, err := template.New("tweet").Parse(
+		`@{{.User}}
+
+{{.Text}}
+
+https://twitter.com/{{.User}}/status/{{.ID}}`)
+	if err != nil {
+		panic(err)
+	}
+
+	var x bytes.Buffer
+
+	err = tmpl.Execute(&x, tweet)
+
+	return x.String(), err
 }
 
 func contains(ids []string, id string) bool {
