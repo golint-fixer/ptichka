@@ -36,7 +36,10 @@ func main() {
 			}
 			createdAt := t.Format("2006-01-02 15:04 -0700")
 
-			subject := config.Label + "@" + currentTweet.User.ScreenName + " " + createdAt
+			subject := config.Label +
+				"@" + currentTweet.User.ScreenName +
+				" " +
+				createdAt
 
 			print(subject)
 			print("\n")
