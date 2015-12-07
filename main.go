@@ -6,6 +6,8 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
+	"net/smtp"
+	"strconv"
 	"text/template"
 	"time"
 )
@@ -41,9 +43,9 @@ func main() {
 				" " +
 				createdAt
 
-			print(subject)
-			print("\n")
-			print("\n")
+			if config.Verbose {
+				print("Sending: " + subject)
+			}
 
 			body, err := tweetBody(tweet{
 				currentTweet.IdStr,
@@ -52,11 +54,28 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			print(body)
-			print("\n")
 
-			print("\n")
-			print("\n")
+			auth := smtp.PlainAuth(
+				"",
+				config.Mail.SMTP.UserName,
+				config.Mail.SMTP.Password,
+				config.Mail.SMTP.Address,
+			)
+
+			err = smtp.SendMail(
+				config.Mail.SMTP.Address+":"+strconv.Itoa(config.Mail.SMTP.Port),
+				auth,
+				config.Mail.From,
+				[]string{config.Mail.From},
+				[]byte(body),
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if config.Verbose {
+				print("\n")
+			}
 		}
 	}
 	if err := saveCache("xyz.json", newIds); err != nil {
