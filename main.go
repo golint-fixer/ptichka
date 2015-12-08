@@ -102,11 +102,13 @@ func main() {
 			if err != nil {
 				log.Panic(err)
 			}
+			defer conn.Close()
 
 			c, err := smtp.NewClient(conn, host)
 			if err != nil {
 				log.Panic(err)
 			}
+			defer c.Quit()
 
 			// Auth
 			if err = c.Auth(auth); err != nil {
@@ -127,18 +129,12 @@ func main() {
 			if err != nil {
 				log.Panic(err)
 			}
+			defer w.Close()
 
 			_, err = w.Write([]byte(message))
 			if err != nil {
 				log.Panic(err)
 			}
-
-			err = w.Close()
-			if err != nil {
-				log.Panic(err)
-			}
-
-			defer c.Quit()
 
 			if config.Verbose {
 				print("\n")
