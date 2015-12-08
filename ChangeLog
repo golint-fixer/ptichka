@@ -1,3 +1,7 @@
+2015-12-08  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): SMTP investigation.
+
 2015-12-02  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (main): Tweet body templating investigation.

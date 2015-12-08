@@ -10,8 +10,14 @@ type config struct {
 	Label     string
 	Verbose   bool
 	Mail      struct {
-		From   string
-		To     string
+		From struct {
+			Address string
+			Name    string
+		}
+		To struct {
+			Address string
+			Name    string
+		}
 		Method string
 		SMTP   struct {
 			Address        string

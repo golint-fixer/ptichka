@@ -34,16 +34,16 @@ func TestLoadConfig(t *testing.T) {
 			config.Verbose,
 			true)
 	}
-	if config.Mail.From != "noreply@example.com" {
+	if config.Mail.From.Address != "noreply@example.com" {
 		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Mail.From == %v, want %v",
-			config.Mail.From,
+			"loadConfig(\".twitmarc.toml.example\").Mail.From.Address == %v, want %v",
+			config.Mail.From.Address,
 			"noreply@example.com")
 	}
-	if config.Mail.To != "your.mail@example.org" {
+	if config.Mail.To.Address != "your.mail@example.org" {
 		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Mail.To == %v, want %v",
-			config.Mail.To,
+			"loadConfig(\".twitmarc.toml.example\").Mail.To.Address == %v, want %v",
+			config.Mail.To.Address,
 			"your.mail@example.org")
 	}
 	if config.Mail.SMTP.Address != "mail.example.com" {

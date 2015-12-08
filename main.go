@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"io/ioutil"
 	"log"
+	"net"
+	"net/mail"
 	"net/smtp"
-	"strconv"
 	"text/template"
 	"time"
 )
@@ -38,10 +41,11 @@ func main() {
 			}
 			createdAt := t.Format("2006-01-02 15:04 -0700")
 
-			subject := config.Label +
-				"@" + currentTweet.User.ScreenName +
-				" " +
-				createdAt
+			subject := fmt.Sprintf(
+				"%s@%s %s",
+				config.Label,
+				currentTweet.User.ScreenName,
+				createdAt)
 
 			if config.Verbose {
 				print("Sending: " + subject)
@@ -55,23 +59,86 @@ func main() {
 				panic(err)
 			}
 
+			from := mail.Address{"", config.Mail.From.Address}
+			to := mail.Address{config.Mail.To.Name, config.Mail.To.Address}
+
+			// Setup headers
+			headers := make(map[string]string)
+			headers["From"] = from.String()
+			headers["To"] = to.String()
+			headers["Subject"] = subject
+
+			// Setup message
+			message := ""
+			for k, v := range headers {
+				message += fmt.Sprintf("%s: %s\r\n", k, v)
+			}
+			message += "\r\n" + body
+
+			// Connect to the SMTP Server
+			servername := fmt.Sprintf(
+				"%s:%d",
+				config.Mail.SMTP.Address,
+				config.Mail.SMTP.Port)
+
+			host, _, _ := net.SplitHostPort(servername)
+
 			auth := smtp.PlainAuth(
 				"",
 				config.Mail.SMTP.UserName,
 				config.Mail.SMTP.Password,
-				config.Mail.SMTP.Address,
-			)
+				host)
 
-			err = smtp.SendMail(
-				config.Mail.SMTP.Address+":"+strconv.Itoa(config.Mail.SMTP.Port),
-				auth,
-				config.Mail.From,
-				[]string{config.Mail.From},
-				[]byte(body),
-			)
-			if err != nil {
-				log.Fatal(err)
+			// TLS config
+			tlsconfig := &tls.Config{
+				InsecureSkipVerify: true,
+				ServerName:         host,
 			}
+
+			// Here is the key, you need to call tls.Dial instead of smtp.Dial
+			// for smtp servers running on 465 that require an ssl connection
+			// from the very beginning (no starttls)
+			conn, err := tls.Dial("tcp", servername, tlsconfig)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			c, err := smtp.NewClient(conn, host)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			// Auth
+			if err = c.Auth(auth); err != nil {
+				log.Panic(err)
+			}
+
+			// To && From
+			if err = c.Mail(from.Address); err != nil {
+				log.Panic(err)
+			}
+
+			if err = c.Rcpt(to.Address); err != nil {
+				log.Panic(err)
+			}
+
+			// Data
+			w, err := c.Data()
+			if err != nil {
+				log.Panic(err)
+			}
+
+			_, err = w.Write([]byte(message))
+			if err != nil {
+				log.Panic(err)
+			}
+
+			err = w.Close()
+			if err != nil {
+				log.Panic(err)
+			}
+
+			defer c.Quit()
 
 			if config.Verbose {
 				print("\n")

@@ -1,6 +1,6 @@
 # twitma
 
-Twitter timeline mailer.
+Yet another Twitter timeline mailer.
 
 ## Description
 

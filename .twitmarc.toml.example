@@ -4,8 +4,15 @@ label = "[twitter] "
 verbose = true
 
 [mail]
-  from = "noreply@example.com"
-  to = "your.mail@example.org"
+
+  [mail.from]
+    address = "noreply@example.com"
+    name = "Foo"
+
+  [mail.to]
+    address = "your.mail@example.org"
+    name = "Bar"
+
   method = "smtp"
 
   [mail.smtp]
