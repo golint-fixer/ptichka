@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"gopkg.in/gomail.v2"
+	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/mail"
+	"os"
+	"path/filepath"
 	"text/template"
 	"time"
 )
@@ -69,7 +73,37 @@ func main() {
 			message.SetHeader("To", to.String())
 			message.SetHeader("Subject", subject)
 			message.SetBody("text/plain", body)
-			// message.Attach("/home/Alex/lolcat.jpg")
+
+			entities := append(
+				currentTweet.Entities.Media,
+				currentTweet.ExtendedEntities.Media...)
+
+			for _, media := range entities {
+				response, err := http.Get(media.Media_url_https)
+				defer response.Body.Close()
+
+				tempDir, err := ioutil.TempDir(
+					os.TempDir(),
+					fmt.Sprintf("twitma_%s", currentTweet.IdStr))
+				if err != nil {
+					log.Fatal(err)
+				}
+				defer os.Remove(tempDir)
+
+				_, fileName := filepath.Split(media.Media_url)
+
+				tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
+
+				tempFile, err := os.Create(tempFilePath)
+				defer tempFile.Close()
+
+				_, err = io.Copy(tempFile, response.Body)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				message.Attach(tempFilePath)
+			}
 
 			dialer := gomail.NewPlainDialer(
 				config.Mail.SMTP.Address,
