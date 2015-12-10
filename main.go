@@ -2,15 +2,13 @@ package main
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/ChimeraCoder/anaconda"
+	"gopkg.in/gomail.v2"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/mail"
-	"net/smtp"
 	"text/template"
 	"time"
 )
@@ -52,88 +50,35 @@ func main() {
 			}
 
 			body, err := tweetBody(tweet{
-				currentTweet.IdStr,
-				currentTweet.User.ScreenName,
-				currentTweet.Text})
+				ID:   currentTweet.IdStr,
+				User: currentTweet.User.ScreenName,
+				Text: currentTweet.Text})
 			if err != nil {
 				panic(err)
 			}
 
-			from := mail.Address{"", config.Mail.From.Address}
-			to := mail.Address{config.Mail.To.Name, config.Mail.To.Address}
+			from := mail.Address{
+				Name:    config.Mail.From.Name,
+				Address: config.Mail.From.Address}
+			to := mail.Address{
+				Name:    config.Mail.To.Name,
+				Address: config.Mail.To.Address}
 
-			// Setup headers
-			headers := make(map[string]string)
-			headers["From"] = from.String()
-			headers["To"] = to.String()
-			headers["Subject"] = subject
+			message := gomail.NewMessage()
+			message.SetHeader("From", from.String())
+			message.SetHeader("To", to.String())
+			message.SetHeader("Subject", subject)
+			message.SetBody("text/plain", body)
+			// message.Attach("/home/Alex/lolcat.jpg")
 
-			// Setup message
-			message := ""
-			for k, v := range headers {
-				message += fmt.Sprintf("%s: %s\r\n", k, v)
-			}
-			message += "\r\n" + body
-
-			// Connect to the SMTP Server
-			servername := fmt.Sprintf(
-				"%s:%d",
+			dialer := gomail.NewPlainDialer(
 				config.Mail.SMTP.Address,
-				config.Mail.SMTP.Port)
-
-			host, _, _ := net.SplitHostPort(servername)
-
-			auth := smtp.PlainAuth(
-				"",
+				config.Mail.SMTP.Port,
 				config.Mail.SMTP.UserName,
-				config.Mail.SMTP.Password,
-				host)
+				config.Mail.SMTP.Password)
 
-			// TLS config
-			tlsconfig := &tls.Config{
-				InsecureSkipVerify: true,
-				ServerName:         host,
-			}
-
-			// Here is the key, you need to call tls.Dial instead of smtp.Dial
-			// for smtp servers running on 465 that require an ssl connection
-			// from the very beginning (no starttls)
-			conn, err := tls.Dial("tcp", servername, tlsconfig)
-			if err != nil {
-				log.Panic(err)
-			}
-			defer conn.Close()
-
-			c, err := smtp.NewClient(conn, host)
-			if err != nil {
-				log.Panic(err)
-			}
-			defer c.Quit()
-
-			// Auth
-			if err = c.Auth(auth); err != nil {
-				log.Panic(err)
-			}
-
-			// To && From
-			if err = c.Mail(from.Address); err != nil {
-				log.Panic(err)
-			}
-
-			if err = c.Rcpt(to.Address); err != nil {
-				log.Panic(err)
-			}
-
-			// Data
-			w, err := c.Data()
-			if err != nil {
-				log.Panic(err)
-			}
-			defer w.Close()
-
-			_, err = w.Write([]byte(message))
-			if err != nil {
-				log.Panic(err)
+			if err := dialer.DialAndSend(message); err != nil {
+				panic(err)
 			}
 
 			if config.Verbose {
