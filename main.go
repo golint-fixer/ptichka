@@ -74,11 +74,7 @@ func main() {
 			message.SetHeader("Subject", subject)
 			message.SetBody("text/plain", body)
 
-			entities := append(
-				currentTweet.Entities.Media,
-				currentTweet.ExtendedEntities.Media...)
-
-			for _, media := range entities {
+			for _, media := range currentTweet.ExtendedEntities.Media {
 				response, err := http.Get(media.Media_url_https)
 				defer response.Body.Close()
 
