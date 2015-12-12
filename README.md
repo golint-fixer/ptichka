@@ -1,6 +1,6 @@
 # tgtm
 
-Yet another Twitter timeline mailer.
+Tweets go to mail
 
 ## Description
 
