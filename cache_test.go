@@ -9,7 +9,7 @@ import (
 func TestLoadCache(t *testing.T) {
 	var jsonBlob = []byte(`["first-id", "second-id"]`)
 
-	tempFile, err := ioutil.TempFile(os.TempDir(), "twitma_test_ids_")
+	tempFile, err := ioutil.TempFile(os.TempDir(), "tgtm_test_ids_")
 	if err != nil {
 		t.Errorf("Error on create temporary file: %v", err)
 	}

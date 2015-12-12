@@ -1,13 +1,12 @@
-# twitma
+# tgtm
 
 Yet another Twitter timeline mailer.
 
 ## Description
 
-Twitma should be run by cron periodically.
+tgtm should be run by cron periodically.
 
-Twitma get your timeline messages
-and send them to you by mail.
+tgtm get your timeline messages and send them to you by mail.
 
 ## Install
 

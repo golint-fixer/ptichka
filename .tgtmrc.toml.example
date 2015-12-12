@@ -1,4 +1,4 @@
-cache_file = ".twitma.json"
+cache_file = ".tgtm.json"
 label = "[twitter] "
 verbose = true
 

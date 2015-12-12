@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	config, err := loadConfig(".twitmarc.toml")
+	config, err := loadConfig(".tgtmrc.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func main() {
 
 				tempDir, err := ioutil.TempDir(
 					os.TempDir(),
-					fmt.Sprintf("twitma_%s", currentTweet.IdStr))
+					fmt.Sprintf("tgtm_%s", currentTweet.IdStr))
 				if err != nil {
 					log.Fatal(err)
 				}
