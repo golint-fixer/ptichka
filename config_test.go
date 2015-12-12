@@ -12,7 +12,7 @@ func TestLoadConfig(t *testing.T) {
 
 	if config.CacheFile != ".twitma.json" {
 		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Count == %v, want %v",
+			"loadConfig(\".twitmarc.toml.example\").CacheFile == %v, want %v",
 			config.CacheFile,
 			".twitma.json")
 	}
@@ -24,13 +24,13 @@ func TestLoadConfig(t *testing.T) {
 	}
 	if config.Label != "[twitter] " {
 		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Count == %v, want %v",
-			config.Count,
-			201)
+			"loadConfig(\".twitmarc.toml.example\").Label == %v, want %v",
+			config.Label,
+			"[twitter] ")
 	}
 	if config.Verbose != true {
 		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\"). == %v, want %v",
+			"loadConfig(\".twitmarc.toml.example\").Verbose == %v, want %v",
 			config.Verbose,
 			true)
 	}
