@@ -116,7 +116,7 @@ func main() {
 			}
 		}
 	}
-	if err := saveCache("xyz.json", newIds); err != nil {
+	if err := saveCache(config.CacheFile, newIds); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -155,20 +155,11 @@ func contains(ids []string, id string) bool {
 }
 
 func fetchTweets(config *config) ([]anaconda.Tweet, error) {
-	// anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
-	// anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
-	// api := anaconda.NewTwitterApi(
-	// 	config.Twitter.AccessToken,
-	// 	config.Twitter.AccessTokenSecret)
-	// tweets, err := api.GetHomeTimeline(nil)
-	// return tweets, err
-
-	foobar, err := ioutil.ReadFile("foobar.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var tweets []anaconda.Tweet
-	err = json.Unmarshal(foobar, &tweets)
-	return tweets, nil
+	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
+	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
+	api := anaconda.NewTwitterApi(
+		config.Twitter.AccessToken,
+		config.Twitter.AccessTokenSecret)
+	tweets, err := api.GetHomeTimeline(nil)
+	return tweets, err
 }
