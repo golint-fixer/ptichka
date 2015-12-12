@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"gopkg.in/gomail.v2"
