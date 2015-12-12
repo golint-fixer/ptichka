@@ -6,7 +6,6 @@ import (
 
 type config struct {
 	CacheFile string `toml:"cache_file"`
-	Count     int
 	Label     string
 	Verbose   bool
 	Mail      struct {
@@ -24,8 +23,6 @@ type config struct {
 			Authentication string
 			Password       string
 			Port           int
-			SSL            bool
-			TLS            bool
 			UserName       string `toml:"user_name"`
 		}
 	}

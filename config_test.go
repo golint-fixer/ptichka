@@ -16,12 +16,6 @@ func TestLoadConfig(t *testing.T) {
 			config.CacheFile,
 			".twitma.json")
 	}
-	if config.Count != 200 {
-		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Count == %v, want %v",
-			config.Count,
-			200)
-	}
 	if config.Label != "[twitter] " {
 		t.Errorf(
 			"loadConfig(\".twitmarc.toml.example\").Label == %v, want %v",
@@ -69,18 +63,6 @@ func TestLoadConfig(t *testing.T) {
 			"loadConfig(\".twitmarc.toml.example\").Mail.SMTP.Port == %v, want %v",
 			config.Mail.SMTP.Port,
 			25)
-	}
-	if config.Mail.SMTP.SSL != false {
-		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Mail.SMTP.SSL == %v, want %v",
-			config.Mail.SMTP.SSL,
-			false)
-	}
-	if config.Mail.SMTP.TLS != false {
-		t.Errorf(
-			"loadConfig(\".twitmarc.toml.example\").Mail.SMTP.TLS == %v, want %v",
-			config.Mail.SMTP.TLS,
-			false)
 	}
 	if config.Mail.SMTP.UserName != "your.mail@example.org" {
 		t.Errorf(

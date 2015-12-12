@@ -1,5 +1,4 @@
 cache_file = ".twitma.json"
-count = 200
 label = "[twitter] "
 verbose = true
 
@@ -20,8 +19,6 @@ verbose = true
     authentication = "plain"
     password = "your_password"
     port = 25
-    ssl = false
-    tls = false
     user_name = "your.mail@example.org"
 
 [twitter]
