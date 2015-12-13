@@ -19,11 +19,10 @@ type config struct {
 		}
 		Method string
 		SMTP   struct {
-			Address        string
-			Authentication string
-			Password       string
-			Port           int
-			UserName       string `toml:"user_name"`
+			Address  string
+			Password string
+			Port     int
+			UserName string `toml:"user_name"`
 		}
 	}
 	Twitter struct {

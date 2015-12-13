@@ -46,12 +46,6 @@ func TestLoadConfig(t *testing.T) {
 			config.Mail.SMTP.Address,
 			"mail.example.com")
 	}
-	if config.Mail.SMTP.Authentication != "plain" {
-		t.Errorf(
-			"loadConfig(\".tgtmrc.toml.example\").Mail.SMTP.Authentication == %v, want %v",
-			config.Mail.SMTP.Authentication,
-			"plain")
-	}
 	if config.Mail.SMTP.Password != "your_password" {
 		t.Errorf(
 			"loadConfig(\".tgtmrc.toml.example\").Mail.SMTP.Password == %v, want %v",
