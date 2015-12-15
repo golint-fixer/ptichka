@@ -11,13 +11,19 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
+	"os/user"
 	"path/filepath"
 	"text/template"
 	"time"
 )
 
 func main() {
-	config, err := loadConfig(".tgtmrc.toml")
+	currentUser, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	config, err := loadConfig(fmt.Sprintf("%s/.tgtmrc.toml", currentUser.HomeDir))
 	if err != nil {
 		log.Fatal(err)
 	}

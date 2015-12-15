@@ -1,3 +1,7 @@
+2015-12-14  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): Loading config relative to user home directory.
+
 2015-12-10  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (main): Attach images to message.
