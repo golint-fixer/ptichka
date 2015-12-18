@@ -2,6 +2,8 @@
 
 Tweets go to mail
 
+[![Build Status](https://travis-ci.org/danil/tgtm.svg)](https://travis-ci.org/danil/tgtm)
+
 ## Description
 
 tgtm should be run by cron periodically.
