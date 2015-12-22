@@ -16,16 +16,18 @@ Go to http://apps.twitter.com and register application.
 
 Then ...
 
-## Limitations/Bugs
+## Bugs
+
+### Sort order
+
+Mails come in the wrong order.
+
+## Limitations
 
 ### 200 messages
 
 Load only last 200 messages.
 So if your have high flow then should process them often.
-
-### Sort order
-
-Sent mails can come in the wrong order.
 
 ## License
 
