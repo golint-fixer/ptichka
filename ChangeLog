@@ -1,3 +1,8 @@
+2015-12-28  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (tweetBody): `tweetBody` respects html entities
+        for example "&lt;" to become "<".
+
 2015-12-14  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (main): Loading config relative to user home directory.

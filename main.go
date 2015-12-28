@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	"gopkg.in/gomail.v2"
+	"html"
 	"io"
 	"io/ioutil"
 	"log"
@@ -132,7 +133,7 @@ type tweet struct {
 	Text string
 }
 
-func tweetBody(tweet tweet) (string, error) {
+func tweetBody(t tweet) (string, error) {
 	tmpl, err := template.New("tweet").Parse(
 		`@{{.User}}
 
@@ -145,7 +146,10 @@ https://twitter.com/{{.User}}/status/{{.ID}}`)
 
 	var x bytes.Buffer
 
-	err = tmpl.Execute(&x, tweet)
+	err = tmpl.Execute(&x, tweet{
+		ID:   t.ID,
+		User: t.User,
+		Text: html.UnescapeString(t.Text)})
 
 	return x.String(), err
 }
@@ -166,5 +170,6 @@ func fetchTweets(config *config) ([]anaconda.Tweet, error) {
 		config.Twitter.AccessToken,
 		config.Twitter.AccessTokenSecret)
 	tweets, err := api.GetHomeTimeline(nil)
+	// sort.Sort(sort.Reverse(sort.IntSlice(tweets)))
 	return tweets, err
 }
