@@ -1,3 +1,16 @@
+2016-01-31  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): feat: Sort tweets by date from oldest to newest.
+
+        * main.go (main): refactor: Logic is responsible for message
+        processing is moved to the separate function.
+
+        * anaconda.go (AnacondaTweets): refactor: move here logic related
+        to fetch tweets via Anaconda library.
+
+        * filter.go (filterTweets): refactor: move here logic related to
+        email sending (should be renamed).
+
 2015-12-28  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (tweetBody): `tweetBody` respects html entities

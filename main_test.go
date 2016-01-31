@@ -1,31 +1,32 @@
 package main
 
 import (
+	"log"
+	"reflect"
+	"sort"
 	"testing"
+	"time"
 )
 
-func TestTweetBody(t *testing.T) {
-	got, err := tweetBody(tweet{
-		ID:   "1234",
-		User: "johndoe",
-		Text: "Hello &amp; world!"})
-
+func TestMain(t *testing.T) {
+	utc, err := time.LoadLocation("UTC")
 	if err != nil {
-		t.Errorf("Error on tweetBody(tweet{...}): %v", err)
+		log.Fatal(err)
 	}
 
-	wont := `@johndoe
+	got := TweetsByDate{
+		Tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		Tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)},
+		Tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)}}
 
-Hello & world!
+	wont := TweetsByDate{
+		Tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)},
+		Tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		Tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)}}
 
-https://twitter.com/johndoe/status/1234`
+	sort.Sort(got)
 
-	if got != wont {
-		t.Errorf(`tweetBody(tweet{ID: "1234", User: "johndoe", Text: "Hello &amp; world!"})
-get:
-%v
-
-wont:
-%v`, got, wont)
+	if !reflect.DeepEqual(got, wont) {
+		t.Errorf("%v != %v", got, wont)
 	}
 }
