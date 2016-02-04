@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/gomail.v2"
 	"html"
 	"io"
 	"io/ioutil"
@@ -13,6 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"gopkg.in/gomail.v2"
 )
 
 // filterTweets reject tweets thats intersect
@@ -62,6 +63,9 @@ func filterTweets(
 
 			for _, media := range currentTweet.Medias {
 				response, err := http.Get(media)
+				if err != nil {
+					log.Fatal(err)
+				}
 				defer response.Body.Close()
 
 				tempDir, err := ioutil.TempDir(
@@ -102,7 +106,7 @@ func filterTweets(
 			}
 		}
 	}
-	return newIds
+	return newIds //FIXME: it's actually all ids
 }
 
 func tweetBody(t Tweet) (string, error) {
