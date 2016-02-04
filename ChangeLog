@@ -1,3 +1,7 @@
+2016-02-04  Danil Kutkevich  <danil@kutkevich.org>
+
+        * anaconda.go (toTweets): Fix medias iteration.
+
 2016-01-31  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (main): feat: Sort tweets by date from oldest to newest.

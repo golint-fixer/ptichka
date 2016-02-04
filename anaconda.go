@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/ChimeraCoder/anaconda"
 	"log"
+	"net/url"
 	"time"
+
+	"github.com/ChimeraCoder/anaconda"
 )
 
 // AnacondaTweets is a collection of the anaconda.Tweet.
@@ -26,9 +28,13 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 		if err != nil {
 			log.Fatal(err)
 		}
-		medias := make([]string, len(anacondaTweets[i].ExtendedEntities.Media))
-		for j := range anacondaTweets {
-			medias[j] = anacondaTweets[i].ExtendedEntities.Media[j].Media_url_https
+		var medias []string
+		for j := range anacondaTweets[i].ExtendedEntities.Media {
+			url, err := url.Parse(
+				anacondaTweets[i].ExtendedEntities.Media[j].Media_url_https)
+			if err == nil {
+				medias = append(medias, url.String())
+			}
 		}
 		tweets[i] = Tweet{
 			ID:     anacondaTweets[i].IdStr,

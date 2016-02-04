@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/ChimeraCoder/anaconda"
 	"log"
 	"testing"
 	"time"
@@ -24,6 +23,7 @@ func TestToTweets(t *testing.T) {
     "extended_entities": {
       "Media": [
         {"Media_url_https": "https://pbs.twimg.com/media/qwertyuiopasdfg.jpg"},
+        {"Media_url_https": ":this://is.wrong/url/should/be/rejected"},
         {"Media_url_https": "https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}
       ]
     }
@@ -41,15 +41,16 @@ func TestToTweets(t *testing.T) {
   }
 ]`)
 
-	var anacondaTweets []anaconda.Tweet
+	var anacondaTweets AnacondaTweets
 	json.Unmarshal(jsonBlob, &anacondaTweets)
+	tweets := anacondaTweets.toTweets()
 
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tweets := TweetsByDate{
+	referenceTweets := TweetsByDate{
 		Tweet{
 			ID:   "111111111111111111",
 			Date: time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
@@ -63,6 +64,7 @@ func TestToTweets(t *testing.T) {
 			Medias: []string{
 				"https://pbs.twimg.com/media/qwertyuiopasdfg.jpg",
 				"https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}},
+
 		Tweet{
 			ID:   "333333333333333333",
 			Date: time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
@@ -71,53 +73,49 @@ func TestToTweets(t *testing.T) {
 			Medias: []string{
 				"https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}}}
 
-	for i := range tweets {
+	for i := range referenceTweets {
+		referenceTweet := referenceTweets[i]
 		tweet := tweets[i]
-		anacondaTweet := anacondaTweets[i]
 
-		if tweet.ID != anacondaTweet.IdStr {
+		if referenceTweet.ID != tweet.ID {
 			t.Errorf(
-				"Tweet.ID{%q} =! anaconda.Tweet.IdStr{%q}",
-				tweet.ID,
-				anacondaTweet.IdStr)
+				"ReferenceTweet.ID{%q} =! anaconda.Tweet.IdStr{%q}",
+				referenceTweet.ID,
+				tweet.ID)
 		}
 
-		createdAt, err := time.Parse(time.RubyDate, anacondaTweet.CreatedAt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if !tweet.Date.Equal(createdAt) {
+		if !referenceTweet.Date.Equal(tweet.Date) {
 			t.Errorf(
-				"Tweet.Date{%q} =! anaconda.Tweet.createdAt{%q}",
-				tweet.Date,
-				createdAt)
+				"ReferenceTweet.Date{%q} =! anaconda.Tweet.createdAt{%q}",
+				referenceTweet.Date,
+				tweet.Date)
 		}
 
-		if tweet.User != anacondaTweet.User.ScreenName {
+		if referenceTweet.User != tweet.User {
 			t.Errorf(
-				"Tweet.User{%q} =! anaconda.Tweet.User.ScreenName{%q}",
-				tweet.User,
-				anacondaTweet.User.ScreenName)
+				"ReferenceTweet.User{%q} =! anaconda.Tweet.User.ScreenName{%q}",
+				referenceTweet.User,
+				tweet.User)
 		}
 
-		if tweet.Text != anacondaTweet.Text {
+		if referenceTweet.Text != tweet.Text {
 			t.Errorf(
-				"Tweet.Text{%q} =! anaconda.Tweet.Text{%q}",
-				tweet.Text,
-				anacondaTweet.Text)
+				"ReferenceTweet.Text{%q} =! anaconda.Tweet.Text{%q}",
+				referenceTweet.Text,
+				tweet.Text)
 		}
 
-		for j := range tweet.Medias {
+		for j := range referenceTweet.Medias {
+			referenceMedia := referenceTweet.Medias[j]
 			media := tweet.Medias[j]
-			anacondaMedia := anacondaTweet.ExtendedEntities.Media[j].Media_url_https
 
-			if media != anacondaMedia {
+			if referenceMedia != media {
 				t.Errorf(
-					"Tweet.Medias[%d]{%q} =! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
+					"ReferenceTweet.Medias[%d]{%q} =! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
 					j,
-					media,
+					referenceMedia,
 					j,
-					anacondaMedia)
+					media)
 			}
 		}
 	}
