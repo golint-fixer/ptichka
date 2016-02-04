@@ -16,12 +16,6 @@ Go to http://apps.twitter.com and register application.
 
 Then ...
 
-## Bugs
-
-### Sort order
-
-Mails come in the wrong order.
-
 ## Limitations
 
 ### 200 messages
