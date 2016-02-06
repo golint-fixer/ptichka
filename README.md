@@ -16,6 +16,12 @@ Go to http://apps.twitter.com and register application.
 
 Then ...
 
+## Bugs
+
+### Retweet text broken
+
+Retweeted text shorter than original
+
 ## Limitations
 
 ### 200 messages
