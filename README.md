@@ -31,9 +31,8 @@ So if your have high flow then should process them often.
 
 ## Contributing
 
-Clone repository from `https://github.com/danil/tgtm.git`  
-or from `git://git.kutkevich.org/go/tgtm.git`.
+See the `CONTRIBUTING.md` file.
 
 ## License
 
-The ...
+See the `LICENSE` file.
