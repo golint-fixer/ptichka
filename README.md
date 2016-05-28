@@ -8,7 +8,7 @@ Tweets go to mail
 
 tgtm should be run by cron periodically.
 
-tgtm get your Twitter timeline messages and send them to you by mail.
+tgtm get your Twitter timeline messages and send them to you by email.
 
 ## Install
 
