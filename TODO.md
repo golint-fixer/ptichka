@@ -2,4 +2,5 @@
 
 ## Continuous delivery
 
-Build binary release on CI server
+Create only one binary release file
+while travis ci matrix runs multiple builds
