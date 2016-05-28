@@ -1,18 +1,24 @@
 sudo: false
 language: go
 go:
+- 1.3.3
+- 1.4.3
+- 1.5.4
 - 1.6.2
+- tip
 before_script:
 - |
   go get -v -u \
          github.com/golang/lint/golint \
          github.com/kisielk/errcheck \
          github.com/mdempsky/unconvert \
-         || exit 1
+scrip:
 - go vet ./...
 - errcheck -verbose -asserts ./...
 - unconvert -v .
 - golint -set_exit_status ./...
+- go test -v ./...
+before_deploy:
 - go build -v -x ./...
 deploy:
   provider: releases
@@ -22,3 +28,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+    go: 1.6.2

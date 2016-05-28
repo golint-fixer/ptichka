@@ -1,6 +1,5 @@
 # TODO
 
-## Continuous delivery
+## Retweeted text
 
-Create only one binary release file
-while travis ci matrix runs multiple builds
+Use retweeted text from `retweeted_status` property.
