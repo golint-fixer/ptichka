@@ -26,14 +26,14 @@ func filterTweets(
 	newIds := oldIds
 
 	for _, currentTweet := range tweets {
-		if !contains(oldIds, currentTweet.ID) {
-			newIds = append(newIds, currentTweet.ID)
+		if !contains(oldIds, currentTweet.IDStr) {
+			newIds = append(newIds, currentTweet.IDStr)
 
 			// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
 			subject := fmt.Sprintf(
 				"%s@%s %s",
 				config.Label,
-				currentTweet.User,
+				currentTweet.UserScreenName,
 				currentTweet.Date.Format("2006-01-02 15:04 -0700"))
 
 			if config.Verbose {
@@ -41,9 +41,9 @@ func filterTweets(
 			}
 
 			body, err := tweetBody(Tweet{
-				ID:   currentTweet.ID,
-				User: currentTweet.User,
-				Text: currentTweet.Text})
+				IDStr:          currentTweet.IDStr,
+				UserScreenName: currentTweet.UserScreenName,
+				Text:           currentTweet.Text})
 			if err != nil {
 				panic(err)
 			}
@@ -70,7 +70,7 @@ func filterTweets(
 
 				tempDir, err := ioutil.TempDir(
 					os.TempDir(),
-					fmt.Sprintf("tgtm_%s", currentTweet.ID))
+					fmt.Sprintf("tgtm_%s", currentTweet.IDStr))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -111,11 +111,11 @@ func filterTweets(
 
 func tweetBody(t Tweet) (string, error) {
 	tmpl, err := template.New("tweet").Parse(
-		`@{{.User}}
+		`@{{.UserScreenName}}
 
 {{.Text}}
 
-https://twitter.com/{{.User}}/status/{{.ID}}`)
+https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
 	if err != nil {
 		panic(err)
 	}
@@ -123,9 +123,9 @@ https://twitter.com/{{.User}}/status/{{.ID}}`)
 	var x bytes.Buffer
 
 	err = tmpl.Execute(&x, Tweet{
-		ID:   t.ID,
-		User: t.User,
-		Text: html.UnescapeString(t.Text)})
+		IDStr:          t.IDStr,
+		UserScreenName: t.UserScreenName,
+		Text:           html.UnescapeString(t.Text)})
 
 	return x.String(), err
 }

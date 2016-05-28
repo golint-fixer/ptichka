@@ -6,9 +6,9 @@ import (
 
 func TestTweetBody(t *testing.T) {
 	got, err := tweetBody(Tweet{
-		ID:   "1234",
-		User: "johndoe",
-		Text: "Hello &amp; world!"})
+		IDStr:          "1234",
+		UserScreenName: "johndoe",
+		Text:           "Hello &amp; world!"})
 
 	if err != nil {
 		t.Errorf("Error on tweetBody(tweet{...}): %v", err)
@@ -21,7 +21,7 @@ Hello & world!
 https://twitter.com/johndoe/status/1234`
 
 	if got != wont {
-		t.Errorf(`tweetBody(tweet{ID: "1234", User: "johndoe", Text: "Hello &amp; world!"})
+		t.Errorf(`tweetBody(tweet{IDStr: "1234", UserScreenName: "johndoe", Text: "Hello &amp; world!"})
 get:
 %v
 

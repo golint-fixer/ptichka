@@ -10,8 +10,8 @@ import (
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
-	ID              string
-	User            string
+	IDStr           string
+	UserScreenName  string
 	Date            time.Time
 	Text            string
 	Medias          []string
@@ -20,8 +20,8 @@ type Tweet struct {
 
 // RetweetedStatus is a simplified anaconda.Tweet.
 type RetweetedStatus struct {
-	User string
-	Text string
+	UserScreenName string
+	Text           string
 }
 
 // TweetsByDate is a slice of Tweet

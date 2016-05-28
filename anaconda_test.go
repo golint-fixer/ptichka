@@ -61,27 +61,27 @@ func TestToTweets(t *testing.T) {
 
 	referenceTweets := TweetsByDate{
 		Tweet{
-			ID:   "111111111111111111",
-			Date: time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
-			User: "johndoe",
-			Text: "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim",
+			IDStr:          "111111111111111111",
+			Date:           time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
+			UserScreenName: "johndoe",
+			Text:           "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim",
 			RetweetedStatus: RetweetedStatus{
-				User: "ivanivanov",
-				Text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"}},
+				UserScreenName: "ivanivanov",
+				Text:           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"}},
 		Tweet{
-			ID:   "222222222222222222",
-			Date: time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
-			User: "johndoe",
-			Text: "foo bar",
+			IDStr:          "222222222222222222",
+			Date:           time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
+			UserScreenName: "johndoe",
+			Text:           "foo bar",
 			Medias: []string{
 				"https://pbs.twimg.com/media/qwertyuiopasdfg.jpg",
 				"https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}},
 
 		Tweet{
-			ID:   "333333333333333333",
-			Date: time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
-			User: "gunterschmidt",
-			Text: "baz xyz",
+			IDStr:          "333333333333333333",
+			Date:           time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
+			UserScreenName: "gunterschmidt",
+			Text:           "baz xyz",
 			Medias: []string{
 				"https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}}}
 
@@ -89,11 +89,11 @@ func TestToTweets(t *testing.T) {
 		referenceTweet := referenceTweets[i]
 		tweet := tweets[i]
 
-		if referenceTweet.ID != tweet.ID {
+		if referenceTweet.IDStr != tweet.IDStr {
 			t.Errorf(
-				"ReferenceTweet.ID{%q} =! anaconda.Tweet.IdStr{%q}",
-				referenceTweet.ID,
-				tweet.ID)
+				"ReferenceTweet.IDStr{%q} =! anaconda.Tweet.IdStr{%q}",
+				referenceTweet.IDStr,
+				tweet.IDStr)
 		}
 
 		if !referenceTweet.Date.Equal(tweet.Date) {
@@ -103,11 +103,11 @@ func TestToTweets(t *testing.T) {
 				tweet.Date)
 		}
 
-		if referenceTweet.User != tweet.User {
+		if referenceTweet.UserScreenName != tweet.UserScreenName {
 			t.Errorf(
-				"ReferenceTweet.User{%q} =! anaconda.Tweet.User.ScreenName{%q}",
-				referenceTweet.User,
-				tweet.User)
+				"ReferenceTweet.UserScreenName{%q} =! anaconda.Tweet.User.ScreenName{%q}",
+				referenceTweet.UserScreenName,
+				tweet.UserScreenName)
 		}
 
 		if referenceTweet.Text != tweet.Text {
@@ -140,12 +140,12 @@ func TestToTweets(t *testing.T) {
 				tweet.RetweetedStatus.Text)
 		}
 
-		if referenceTweet.RetweetedStatus.User != tweet.RetweetedStatus.User {
+		if referenceTweet.RetweetedStatus.UserScreenName != tweet.RetweetedStatus.UserScreenName {
 			t.Errorf(
-				"ReferenceTweet.RetweetedStatus.User{%q} "+
+				"ReferenceTweet.RetweetedStatus.UserScreenName{%q} "+
 					"=! anaconda.Tweet.AnacondaTweets.User.ScreenName{%q}",
-				referenceTweet.RetweetedStatus.User,
-				tweet.RetweetedStatus.User)
+				referenceTweet.RetweetedStatus.UserScreenName,
+				tweet.RetweetedStatus.UserScreenName)
 		}
 	}
 }

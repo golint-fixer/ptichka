@@ -46,12 +46,12 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 				anacondaTweets[i].RetweetedStatus.User.ScreenName,
 				anacondaTweets[i].RetweetedStatus.Text)
 			retweetedStatus = RetweetedStatus{
-				User: anacondaTweets[i].RetweetedStatus.User.ScreenName,
-				Text: anacondaTweets[i].RetweetedStatus.Text}
+				UserScreenName: anacondaTweets[i].RetweetedStatus.User.ScreenName,
+				Text:           anacondaTweets[i].RetweetedStatus.Text}
 		}
 		tweets[i] = Tweet{
-			ID:              anacondaTweets[i].IdStr,
-			User:            anacondaTweets[i].User.ScreenName,
+			IDStr:           anacondaTweets[i].IdStr,
+			UserScreenName:  anacondaTweets[i].User.ScreenName,
 			Date:            date,
 			Text:            text,
 			Medias:          medias,
