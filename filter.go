@@ -66,7 +66,7 @@ func filterTweets(
 				if err != nil {
 					log.Fatal(err)
 				}
-				defer response.Body.Close()
+				defer func() { _ = response.Body.Close() }()
 
 				tempDir, err := ioutil.TempDir(
 					os.TempDir(),
@@ -74,14 +74,14 @@ func filterTweets(
 				if err != nil {
 					log.Fatal(err)
 				}
-				defer os.Remove(tempDir)
+				defer func() { _ = os.Remove(tempDir) }()
 
 				_, fileName := filepath.Split(media)
 
 				tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
 
 				tempFile, err := os.Create(tempFilePath)
-				defer tempFile.Close()
+				defer func() { _ = tempFile.Close() }()
 
 				_, err = io.Copy(tempFile, response.Body)
 				if err != nil {

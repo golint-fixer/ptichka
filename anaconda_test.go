@@ -42,7 +42,10 @@ func TestToTweets(t *testing.T) {
 ]`)
 
 	var anacondaTweets AnacondaTweets
-	json.Unmarshal(jsonBlob, &anacondaTweets)
+	err := json.Unmarshal(jsonBlob, &anacondaTweets)
+	if err != nil {
+		log.Fatal(err)
+	}
 	tweets := anacondaTweets.toTweets()
 
 	utc, err := time.LoadLocation("UTC")

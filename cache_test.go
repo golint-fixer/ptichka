@@ -14,14 +14,17 @@ func TestLoadCache(t *testing.T) {
 		t.Errorf("Error on create temporary file: %v", err)
 	}
 
-	ioutil.WriteFile(tempFile.Name(), jsonBlob, 0644)
+	tempFileName := tempFile.Name()
+	if err := ioutil.WriteFile(tempFileName, jsonBlob, 0644); err != nil {
+		t.Fatalf("WriteFile %s: %v", tempFileName, err)
+	}
 
 	ids, err := loadCache(tempFile.Name())
 	if err != nil {
 		t.Errorf("Error on loadCache(tempFile): %v", err)
 	}
 
-	defer os.Remove(tempFile.Name())
+	defer func() { _ = os.Remove(tempFile.Name()) }()
 
 	var got, wont string
 

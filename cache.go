@@ -23,7 +23,9 @@ func loadCache(path string) ([]string, error) {
 		}
 	} else {
 		jsonBlob = []byte(`[]`)
-		ioutil.WriteFile(path, jsonBlob, 0644)
+		if err := ioutil.WriteFile(path, jsonBlob, 0644); err != nil {
+			log.Fatalf("WriteFile %s: %v", path, err)
+		}
 	}
 
 	err = json.Unmarshal(jsonBlob, &ids)
@@ -31,7 +33,7 @@ func loadCache(path string) ([]string, error) {
 	return ids, err
 }
 
-func saveCache(path string, ids []string) (error) {
+func saveCache(path string, ids []string) error {
 	jsonBlob, err := json.MarshalIndent(ids, "", "  ")
 	if err != nil {
 		log.Fatal(err)
