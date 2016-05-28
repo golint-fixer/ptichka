@@ -10,7 +10,7 @@ before_script:
          github.com/golang/lint/golint \
          github.com/kisielk/errcheck \
          github.com/mdempsky/unconvert \
-scrip:
+script:
 - go vet ./...
 - errcheck -verbose -asserts ./...
 - unconvert -v .
