@@ -1,3 +1,10 @@
+2016-05-28  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (unrelated_change): Add `RetweetedStatus` to `Tweet` type.
+
+        * anaconda.go (anacondaTweets.toTweets): Fix truncated text.
+        Use retweeted text from `retweeted_status` property.
+
 2016-02-04  Danil Kutkevich  <danil@kutkevich.org>
 
         * anaconda.go (toTweets): Fix medias iteration.

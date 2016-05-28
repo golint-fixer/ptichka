@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"time"
@@ -36,12 +37,25 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 				medias = append(medias, url.String())
 			}
 		}
+		var retweetedStatus RetweetedStatus
+		var text string
+		if anacondaTweets[i].RetweetedStatus == nil {
+			text = anacondaTweets[i].Text
+		} else {
+			text = fmt.Sprintf("RT @%s: %s",
+				anacondaTweets[i].RetweetedStatus.User.ScreenName,
+				anacondaTweets[i].RetweetedStatus.Text)
+			retweetedStatus = RetweetedStatus{
+				User: anacondaTweets[i].RetweetedStatus.User.ScreenName,
+				Text: anacondaTweets[i].RetweetedStatus.Text}
+		}
 		tweets[i] = Tweet{
-			ID:     anacondaTweets[i].IdStr,
-			User:   anacondaTweets[i].User.ScreenName,
-			Date:   date,
-			Text:   anacondaTweets[i].Text,
-			Medias: medias}
+			ID:              anacondaTweets[i].IdStr,
+			User:            anacondaTweets[i].User.ScreenName,
+			Date:            date,
+			Text:            text,
+			Medias:          medias,
+			RetweetedStatus: retweetedStatus}
 	}
 	return tweets
 }

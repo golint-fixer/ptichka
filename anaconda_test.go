@@ -13,7 +13,13 @@ func TestToTweets(t *testing.T) {
     "id_str": "111111111111111111",
     "created_at": "Thu Jan 01 01:00:00 +0000 1970",
     "user": {"screen_name": "johndoe"},
-    "text": "RT @ivanivanov: Hello, World!"
+    "text": "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqu...",
+    "retweeted_status": {
+      "user": {
+        "screen_name": "ivanivanov"
+      },
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"
+    }
   },
   {
     "id_str": "222222222222222222",
@@ -58,7 +64,10 @@ func TestToTweets(t *testing.T) {
 			ID:   "111111111111111111",
 			Date: time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
 			User: "johndoe",
-			Text: "RT @ivanivanov: Hello, World!"},
+			Text: "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim",
+			RetweetedStatus: RetweetedStatus{
+				User: "ivanivanov",
+				Text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"}},
 		Tweet{
 			ID:   "222222222222222222",
 			Date: time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
@@ -114,12 +123,29 @@ func TestToTweets(t *testing.T) {
 
 			if referenceMedia != media {
 				t.Errorf(
-					"ReferenceTweet.Medias[%d]{%q} =! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
+					"ReferenceTweet.Medias[%d]{%q} "+
+						"=! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
 					j,
 					referenceMedia,
 					j,
 					media)
 			}
+		}
+
+		if referenceTweet.RetweetedStatus.Text != tweet.RetweetedStatus.Text {
+			t.Errorf(
+				"ReferenceTweet.RetweetedStatus.Text{%q} "+
+					"=! anaconda.Tweet.AnacondaTweets.Text{%q}",
+				referenceTweet.RetweetedStatus.Text,
+				tweet.RetweetedStatus.Text)
+		}
+
+		if referenceTweet.RetweetedStatus.User != tweet.RetweetedStatus.User {
+			t.Errorf(
+				"ReferenceTweet.RetweetedStatus.User{%q} "+
+					"=! anaconda.Tweet.AnacondaTweets.User.ScreenName{%q}",
+				referenceTweet.RetweetedStatus.User,
+				tweet.RetweetedStatus.User)
 		}
 	}
 }
