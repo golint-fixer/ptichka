@@ -37,7 +37,6 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 				medias = append(medias, url.String())
 			}
 		}
-		var retweetedStatus RetweetedStatus
 		var text string
 		if anacondaTweets[i].RetweetedStatus == nil {
 			text = anacondaTweets[i].Text
@@ -45,17 +44,13 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 			text = fmt.Sprintf("RT @%s: %s",
 				anacondaTweets[i].RetweetedStatus.User.ScreenName,
 				anacondaTweets[i].RetweetedStatus.Text)
-			retweetedStatus = RetweetedStatus{
-				UserScreenName: anacondaTweets[i].RetweetedStatus.User.ScreenName,
-				Text:           anacondaTweets[i].RetweetedStatus.Text}
 		}
 		tweets[i] = Tweet{
-			IDStr:           anacondaTweets[i].IdStr,
-			UserScreenName:  anacondaTweets[i].User.ScreenName,
-			Date:            date,
-			Text:            text,
-			Medias:          medias,
-			RetweetedStatus: retweetedStatus}
+			IDStr:          anacondaTweets[i].IdStr,
+			UserScreenName: anacondaTweets[i].User.ScreenName,
+			Date:           date,
+			Text:           text,
+			Medias:         medias}
 	}
 	return tweets
 }

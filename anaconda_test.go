@@ -64,10 +64,7 @@ func TestToTweets(t *testing.T) {
 			IDStr:          "111111111111111111",
 			Date:           time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
-			Text:           "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim",
-			RetweetedStatus: RetweetedStatus{
-				UserScreenName: "ivanivanov",
-				Text:           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"}},
+			Text:           "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"},
 		Tweet{
 			IDStr:          "222222222222222222",
 			Date:           time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
@@ -130,22 +127,6 @@ func TestToTweets(t *testing.T) {
 					j,
 					media)
 			}
-		}
-
-		if referenceTweet.RetweetedStatus.Text != tweet.RetweetedStatus.Text {
-			t.Errorf(
-				"ReferenceTweet.RetweetedStatus.Text{%q} "+
-					"=! anaconda.Tweet.AnacondaTweets.Text{%q}",
-				referenceTweet.RetweetedStatus.Text,
-				tweet.RetweetedStatus.Text)
-		}
-
-		if referenceTweet.RetweetedStatus.UserScreenName != tweet.RetweetedStatus.UserScreenName {
-			t.Errorf(
-				"ReferenceTweet.RetweetedStatus.UserScreenName{%q} "+
-					"=! anaconda.Tweet.AnacondaTweets.User.ScreenName{%q}",
-				referenceTweet.RetweetedStatus.UserScreenName,
-				tweet.RetweetedStatus.UserScreenName)
 		}
 	}
 }
