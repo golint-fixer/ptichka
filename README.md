@@ -1,14 +1,14 @@
-# tgtm
+# ptichka
 
-Tweets go to mail
+Fetch tweets and send by SMTP
 
-[![Build Status](https://travis-ci.org/danil/tgtm.svg)](https://travis-ci.org/danil/tgtm)
+[![Build Status](https://travis-ci.org/danil/ptichka.svg)](https://travis-ci.org/danil/ptichka)
 
 ## Description
 
-tgtm should be run by cron periodically.
+`ptichka` should be run by cron periodically.
 
-tgtm get your Twitter timeline messages and send them to you by email.
+`ptichka` get your Twitter timeline messages and send them to you by email.
 
 ## Install
 

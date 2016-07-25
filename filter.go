@@ -70,7 +70,7 @@ func filterTweets(
 
 				tempDir, err := ioutil.TempDir(
 					os.TempDir(),
-					fmt.Sprintf("tgtm_%s", currentTweet.IDStr))
+					fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
 				if err != nil {
 					log.Fatal(err)
 				}

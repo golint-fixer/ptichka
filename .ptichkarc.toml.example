@@ -1,4 +1,4 @@
-cache_file = ".tgtm.json"
+cache_file = ".ptichka.json"
 label = "[twitter] "
 verbose = true
 

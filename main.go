@@ -40,7 +40,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	config, err := loadConfig(fmt.Sprintf("%s/.tgtmrc.toml", currentUser.HomeDir))
+	config, err := loadConfig(fmt.Sprintf("%s/.ptichkarc.toml", currentUser.HomeDir))
 	if err != nil {
 		log.Fatal(err)
 	}
