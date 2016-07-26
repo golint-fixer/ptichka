@@ -18,7 +18,7 @@ import (
 
 // filterTweets reject tweets thats intersect
 // with "cached" tweets's oldIds (thats processed in previous time).
-// It returns the slice of the newIds thats was not processed in prevented time.
+// It returns the slice of the newIds which was not processed in previous time.
 func filterTweets(
 	tweets TweetsByDate,
 	oldIds []string,
