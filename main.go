@@ -73,88 +73,90 @@ func main() {
 	newIds := oldIds
 
 	for _, currentTweet := range tweets {
-		if !contains(oldIds, currentTweet.IDStr) {
-			newIds = append(newIds, currentTweet.IDStr)
+		if contains(oldIds, currentTweet.IDStr) {
+			continue
+		}
 
-			// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
-			subject := fmt.Sprintf(
-				"%s@%s %s",
-				config.Label,
-				currentTweet.UserScreenName,
-				currentTweet.Date.Format("2006-01-02 15:04 -0700"))
+		newIds = append(newIds, currentTweet.IDStr)
 
-			if config.Verbose {
-				print("Sending: " + subject)
-			}
+		// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
+		subject := fmt.Sprintf(
+			"%s@%s %s",
+			config.Label,
+			currentTweet.UserScreenName,
+			currentTweet.Date.Format("2006-01-02 15:04 -0700"))
 
-			body, err := tweetBody(Tweet{
-				IDStr:          currentTweet.IDStr,
-				UserScreenName: currentTweet.UserScreenName,
-				Text:           currentTweet.Text})
+		if config.Verbose {
+			print("Sending: " + subject)
+		}
+
+		body, err := tweetBody(Tweet{
+			IDStr:          currentTweet.IDStr,
+			UserScreenName: currentTweet.UserScreenName,
+			Text:           currentTweet.Text})
+		if err != nil {
+			panic(err)
+		}
+
+		from := mail.Address{
+			Name:    config.Mail.From.Name,
+			Address: config.Mail.From.Address}
+		to := mail.Address{
+			Name:    config.Mail.To.Name,
+			Address: config.Mail.To.Address}
+
+		message := email.NewEmail()
+		message.From = from.String()
+		message.To = []string{to.String()}
+		message.Subject = subject
+		message.Text = []byte(body)
+
+		for _, media := range currentTweet.Medias {
+			response, err := http.Get(media)
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
+			defer func() { _ = response.Body.Close() }()
 
-			from := mail.Address{
-				Name:    config.Mail.From.Name,
-				Address: config.Mail.From.Address}
-			to := mail.Address{
-				Name:    config.Mail.To.Name,
-				Address: config.Mail.To.Address}
-
-			message := email.NewEmail()
-			message.From = from.String()
-			message.To = []string{to.String()}
-			message.Subject = subject
-			message.Text = []byte(body)
-
-			for _, media := range currentTweet.Medias {
-				response, err := http.Get(media)
-				if err != nil {
-					log.Fatal(err)
-				}
-				defer func() { _ = response.Body.Close() }()
-
-				tempDir, err := ioutil.TempDir(
-					os.TempDir(),
-					fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
-				if err != nil {
-					log.Fatal(err)
-				}
-				defer func() { _ = os.Remove(tempDir) }()
-
-				_, fileName := filepath.Split(media)
-
-				tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
-
-				tempFile, err := os.Create(tempFilePath)
-				defer func() { _ = tempFile.Close() }()
-
-				_, err = io.Copy(tempFile, response.Body)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				_, err = message.AttachFile(tempFilePath)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-
-			err = message.Send(
-				fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
-				smtp.PlainAuth(
-					"",
-					config.Mail.SMTP.UserName,
-					config.Mail.SMTP.Password,
-					config.Mail.SMTP.Address))
+			tempDir, err := ioutil.TempDir(
+				os.TempDir(),
+				fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
+			}
+			defer func() { _ = os.Remove(tempDir) }()
+
+			_, fileName := filepath.Split(media)
+
+			tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
+
+			tempFile, err := os.Create(tempFilePath)
+			defer func() { _ = tempFile.Close() }()
+
+			_, err = io.Copy(tempFile, response.Body)
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			if config.Verbose {
-				print("\n")
+			_, err = message.AttachFile(tempFilePath)
+			if err != nil {
+				log.Fatal(err)
 			}
+		}
+
+		err = message.Send(
+			fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
+			smtp.PlainAuth(
+				"",
+				config.Mail.SMTP.UserName,
+				config.Mail.SMTP.Password,
+				config.Mail.SMTP.Address))
+		if err != nil {
+			panic(err)
+		}
+
+		if config.Verbose {
+			print("\n")
 		}
 	}
 
