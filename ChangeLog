@@ -1,3 +1,8 @@
+2016-07-27  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): Replace `gomail` by `jordan-wright/email`.
+        Because `jordan-wright/email` is more straightforward.
+
 2016-05-28  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (unrelated_change): Add `RetweetedStatus` to `Tweet` type.
