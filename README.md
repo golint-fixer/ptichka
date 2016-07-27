@@ -1,6 +1,6 @@
 # ptichka
 
-Fetch tweets and send by SMTP
+Fetch tweets and sends by SMTP
 
 [![Build Status](https://travis-ci.org/danil/ptichka.svg)](https://travis-ci.org/danil/ptichka)
 
