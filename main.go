@@ -17,7 +17,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/jordan-wright/email"
+	"gopkg.in/jordan-wright/email.v2"
 )
 
 // Tweet is a simplified anaconda.Tweet.
