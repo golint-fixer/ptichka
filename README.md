@@ -18,11 +18,11 @@ go get github.com/danil/ptichka
 
 Then copy `.ptichkarc.toml.example` to `/path/to/your.toml`
 
-Go to http://apps.twitter.com and register application.
+Go to http://apps.twitter.com and register application (or applications).
 
 Configure `consumer_key`, `consumer_secret`, `access_token`,
 `access_token_secret` in `/path/to/your.toml` file
-according to your registered Twitter application.
+according to your registered Twitter application(s).
 
 Configure SMTP and mail in `/path/to/your.toml` file.
 
