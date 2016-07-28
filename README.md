@@ -16,14 +16,18 @@ Go to http://apps.twitter.com and register application.
 
 Then ...
 
-## Limitations
+## Bugs
 
-### 200 messages
+### 200 messages limitation
 
 Load only last [200 messages][].
 So if your have high flow then should process them often.
 
 [200 messages]: https://dev.twitter.com/rest/reference/get/statuses/home_timeline#api-param-count
+
+### SMTP with SLL/TLS not supported
+
+SLL/TLS not supported but STARTTLS should work.
 
 ## Contributing
 
