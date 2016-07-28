@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an programm version.
-const Version = "0.6.2"
+const Version = "0.6.3"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -70,12 +70,19 @@ func main() {
 		go ptichka(&config, ch)
 	}
 
+	var errors []error
 	for range configs.Accounts {
 		err = <-ch
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v", err)
-			os.Exit(1)
+			errors = append(errors, <-ch)
 		}
+	}
+
+	if len(errors) > 0 {
+		for _, err := range errors {
+			fmt.Fprintf(os.Stderr, "Error: %v", err)
+		}
+		os.Exit(1)
 	}
 }
 
