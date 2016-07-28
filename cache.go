@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -12,22 +11,19 @@ func loadCache(path string) ([]string, error) {
 
 	pathExists, err := pathExists(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on pathExists(%s): %v", path, err)
-		os.Exit(1)
+		return ids, err
 	}
 
 	var jsonBlob []byte
 	if pathExists {
 		jsonBlob, err = ioutil.ReadFile(path)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error on ReadFile(%s): %v", path, err)
-			os.Exit(1)
+			return ids, err
 		}
 	} else {
 		jsonBlob = []byte(`[]`)
 		if err := ioutil.WriteFile(path, jsonBlob, 0644); err != nil {
-			fmt.Fprintf(os.Stderr, "Error on WriteFile(%s): %v", path, err)
-			os.Exit(1)
+			return ids, err
 		}
 	}
 
@@ -38,7 +34,9 @@ func loadCache(path string) ([]string, error) {
 
 func saveCache(path string, ids []string) error {
 	jsonBlob, err := json.MarshalIndent(ids, "", "  ")
-	ifError(err, "Error on MarshalIndent: %s")
+	if err != nil {
+		return err
+	}
 
 	err = ioutil.WriteFile(path, jsonBlob, 0644)
 

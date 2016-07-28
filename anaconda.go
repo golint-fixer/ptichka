@@ -21,11 +21,13 @@ func fetchTweets(config *config) (AnacondaTweets, error) {
 	return anacondaTweets, err
 }
 
-func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
+func (anacondaTweets AnacondaTweets) toTweets() (TweetsByDate, error) {
 	tweets := make(TweetsByDate, len(anacondaTweets))
 	for i := range anacondaTweets {
 		date, err := time.Parse(time.RubyDate, anacondaTweets[i].CreatedAt)
-		ifError(err, "Error on time.Parse CreatedAt: %s")
+		if err != nil {
+			return tweets, err
+		}
 
 		var medias []string
 		for j := range anacondaTweets[i].ExtendedEntities.Media {
@@ -50,5 +52,5 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 			Text:           text,
 			Medias:         medias}
 	}
-	return tweets
+	return tweets, nil
 }

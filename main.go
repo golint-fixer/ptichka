@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an programm version.
-const Version = "0.6.0"
+const Version = "0.6.1"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -65,22 +65,39 @@ func main() {
 		os.Exit(1)
 	}
 
+	ch := make(chan error)
 	for _, config := range configs.Accounts {
-		go ptichka(&config)
+		go ptichka(&config, ch)
+	}
+
+	for range configs.Accounts {
+		err = <-ch
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v", err)
+			os.Exit(1)
+		}
 	}
 }
 
-func ptichka(config *config) {
+func ptichka(config *config, ch chan<- error) {
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on loadCache(%s): %v", config.CacheFile, err)
-		os.Exit(1)
+		ch <- err
+		return
 	}
 
 	anacondaTweets, err := fetchTweets(config)
-	ifError(err, "Error on fetchTweets: %s")
+	if err != nil {
+		ch <- err
+		return
+	}
 
-	tweets := anacondaTweets.toTweets()
+	tweets, err := anacondaTweets.toTweets()
+	if err != nil {
+		ch <- err
+		return
+	}
+
 	sort.Sort(tweets)
 
 	newIds := oldIds
@@ -107,7 +124,10 @@ func ptichka(config *config) {
 			IDStr:          currentTweet.IDStr,
 			UserScreenName: currentTweet.UserScreenName,
 			Text:           currentTweet.Text})
-		ifError(err, "Error on tweetBody: %s")
+		if err != nil {
+			ch <- err
+			return
+		}
 
 		from := mail.Address{
 			Name:    config.Mail.From.Name,
@@ -125,15 +145,18 @@ func ptichka(config *config) {
 		for _, media := range currentTweet.Medias {
 			response, err := http.Get(media)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error on Get(%s): %v", media, err)
-				os.Exit(1)
+				ch <- err
+				return
 			}
 			defer func() { _ = response.Body.Close() }()
 
 			tempDir, err := ioutil.TempDir(
 				os.TempDir(),
 				fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
-			ifError(err, "Error on TempDir: %s")
+			if err != nil {
+				ch <- err
+				return
+			}
 			defer func() { _ = os.Remove(tempDir) }()
 
 			_, fileName := filepath.Split(media)
@@ -142,18 +165,21 @@ func ptichka(config *config) {
 
 			tempFile, err := os.Create(tempFilePath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error on Create(%s): %v", tempFilePath, err)
-				os.Exit(1)
+				ch <- err
+				return
 			}
 			defer func() { _ = tempFile.Close() }()
 
 			_, err = io.Copy(tempFile, response.Body)
-			ifError(err, "Error on Copy: %s")
+			if err != nil {
+				ch <- err
+				return
+			}
 
 			_, err = message.AttachFile(tempFilePath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error on AttachFile(%s): %v", tempFilePath, err)
-				os.Exit(1)
+				ch <- err
+				return
 			}
 		}
 
@@ -164,7 +190,10 @@ func ptichka(config *config) {
 				config.Mail.SMTP.UserName,
 				config.Mail.SMTP.Password,
 				config.Mail.SMTP.Address))
-		ifError(err, "Error on Send: %s")
+		if err != nil {
+			ch <- err
+			return
+		}
 
 		if config.Verbose {
 			print("\n")
@@ -172,10 +201,8 @@ func ptichka(config *config) {
 	}
 
 	err = saveCache(config.CacheFile, newIds)
-
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on saveCache(%s): %v", config.CacheFile, err)
-		os.Exit(1)
+		ch <- err
 	}
 }
 
@@ -186,7 +213,9 @@ func tweetBody(t Tweet) (string, error) {
 {{.Text}}
 
 https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
-	ifError(err, "Error on template.New: %s")
+	if err != nil {
+		return "", err
+	}
 
 	var x bytes.Buffer
 
@@ -205,11 +234,4 @@ func contains(ids []string, id string) bool {
 		}
 	}
 	return false
-}
-
-func ifError(err error, message string) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, message, err)
-		os.Exit(1)
-	}
 }

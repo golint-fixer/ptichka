@@ -52,7 +52,10 @@ func TestToTweets(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tweets := anacondaTweets.toTweets()
+	tweets, err := anacondaTweets.toTweets()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
