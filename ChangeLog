@@ -1,3 +1,7 @@
+2016-07-28  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): Get path to config from arguments.
+
 2016-07-27  Danil Kutkevich  <danil@kutkevich.org>
 
         * main.go (main): Replace `gomail` by `jordan-wright/email`.

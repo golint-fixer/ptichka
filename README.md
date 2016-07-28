@@ -12,9 +12,25 @@ Fetch tweets and sends by SMTP
 
 ## Install
 
+```sh
+go get github.com/danil/ptichka
+```
+
+Then copy `.ptichkarc.toml.example` to `/path/to/your.toml`
+
 Go to http://apps.twitter.com and register application.
 
-Then ...
+Configure `consumer_key`, `consumer_secret`, `access_token`,
+`access_token_secret` in `/path/to/your.toml` file
+according to your registered Twitter application.
+
+Configure SMTP and mail in `/path/to/your.toml` file.
+
+Then run `ptichka` binary with `/path/to/your.toml` argument.
+
+```sh
+path/to/ptichka /path/to/your.toml
+```
 
 ## Bugs
 

@@ -11,7 +11,6 @@ import (
 	"net/mail"
 	"net/smtp"
 	"os"
-	"os/user"
 	"path/filepath"
 	"sort"
 	"text/template"
@@ -47,12 +46,7 @@ func (a TweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a TweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 func main() {
-	currentUser, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	config, err := loadConfig(fmt.Sprintf("%s/.ptichkarc.toml", currentUser.HomeDir))
+	config, err := loadConfig(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
