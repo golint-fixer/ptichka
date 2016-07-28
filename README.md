@@ -1,6 +1,8 @@
 # ptichka
 
-Fetch tweets and sends by SMTP
+Fetch [timeline][](s) tweets and sends by SMTP
+
+[timeline]: https://dev.twitter.com/rest/reference/get/statuses/home_timeline
 
 [![Build Status](https://travis-ci.org/danil/ptichka.svg)](https://travis-ci.org/danil/ptichka)
 
