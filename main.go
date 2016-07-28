@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"html"
 	"io"
@@ -18,6 +19,9 @@ import (
 
 	"gopkg.in/jordan-wright/email.v2"
 )
+
+// Version is an programm version.
+const Version = "0.5.0"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -46,7 +50,17 @@ func (a TweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a TweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 func main() {
-	config, err := loadConfig(os.Args[1])
+	version := flag.Bool("version", false, "display version information and exit")
+	pathToConfig := flag.String("config", "", "path to config")
+
+	flag.Parse()
+
+	if *version {
+		fmt.Println(Version)
+		os.Exit(0)
+	}
+
+	config, err := loadConfig(*pathToConfig)
 	if err != nil {
 		log.Fatal(err)
 	}

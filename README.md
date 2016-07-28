@@ -29,7 +29,7 @@ Configure SMTP and mail in `/path/to/your.toml` file.
 Then run `ptichka` binary with `/path/to/your.toml` argument.
 
 ```sh
-path/to/ptichka /path/to/your.toml
+path/to/ptichka -config /path/to/your.toml
 ```
 
 ## Bugs
