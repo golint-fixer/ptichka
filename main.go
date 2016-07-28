@@ -7,7 +7,6 @@ import (
 	"html"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/mail"
 	"net/smtp"
@@ -21,7 +20,7 @@ import (
 )
 
 // Version is an programm version.
-const Version = "0.5.0"
+const Version = "0.5.1"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -62,18 +61,18 @@ func main() {
 
 	config, err := loadConfig(*pathToConfig)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "Error on loadConfig(%s): %v", *pathToConfig, err)
+		os.Exit(1)
 	}
 
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "Error on loadCache(%s): %v", config.CacheFile, err)
+		os.Exit(1)
 	}
 
 	anacondaTweets, err := fetchTweets(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ifError(err, "Error on fetchTweets: %s")
 
 	tweets := anacondaTweets.toTweets()
 	sort.Sort(tweets)
@@ -102,9 +101,7 @@ func main() {
 			IDStr:          currentTweet.IDStr,
 			UserScreenName: currentTweet.UserScreenName,
 			Text:           currentTweet.Text})
-		if err != nil {
-			panic(err)
-		}
+		ifError(err, "Error on tweetBody: %s")
 
 		from := mail.Address{
 			Name:    config.Mail.From.Name,
@@ -122,16 +119,15 @@ func main() {
 		for _, media := range currentTweet.Medias {
 			response, err := http.Get(media)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "Error on Get(%s): %v", media, err)
+				os.Exit(1)
 			}
 			defer func() { _ = response.Body.Close() }()
 
 			tempDir, err := ioutil.TempDir(
 				os.TempDir(),
 				fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
-			if err != nil {
-				log.Fatal(err)
-			}
+			ifError(err, "Error on TempDir: %s")
 			defer func() { _ = os.Remove(tempDir) }()
 
 			_, fileName := filepath.Split(media)
@@ -139,16 +135,19 @@ func main() {
 			tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
 
 			tempFile, err := os.Create(tempFilePath)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error on Create(%s): %v", tempFilePath, err)
+				os.Exit(1)
+			}
 			defer func() { _ = tempFile.Close() }()
 
 			_, err = io.Copy(tempFile, response.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
+			ifError(err, "Error on Copy: %s")
 
 			_, err = message.AttachFile(tempFilePath)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "Error on AttachFile(%s): %v", tempFilePath, err)
+				os.Exit(1)
 			}
 		}
 
@@ -159,17 +158,17 @@ func main() {
 				config.Mail.SMTP.UserName,
 				config.Mail.SMTP.Password,
 				config.Mail.SMTP.Address))
-		if err != nil {
-			panic(err)
-		}
+		ifError(err, "Error on Send: %s")
 
 		if config.Verbose {
 			print("\n")
 		}
 	}
 
-	if err := saveCache(config.CacheFile, newIds); err != nil {
-		log.Fatal(err)
+	err = saveCache(config.CacheFile, newIds)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error on saveCache(%s): %v", config.CacheFile, err)
+		os.Exit(1)
 	}
 }
 
@@ -180,9 +179,7 @@ func tweetBody(t Tweet) (string, error) {
 {{.Text}}
 
 https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
-	if err != nil {
-		panic(err)
-	}
+	ifError(err, "Error on template.New: %s")
 
 	var x bytes.Buffer
 
@@ -201,4 +198,11 @@ func contains(ids []string, id string) bool {
 		}
 	}
 	return false
+}
+
+func ifError(err error, message string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, message, err)
+		os.Exit(1)
+	}
 }

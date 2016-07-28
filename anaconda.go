@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"time"
 
@@ -26,9 +25,8 @@ func (anacondaTweets AnacondaTweets) toTweets() TweetsByDate {
 	tweets := make(TweetsByDate, len(anacondaTweets))
 	for i := range anacondaTweets {
 		date, err := time.Parse(time.RubyDate, anacondaTweets[i].CreatedAt)
-		if err != nil {
-			log.Fatal(err)
-		}
+		ifError(err, "Error on time.Parse CreatedAt: %s")
+
 		var medias []string
 		for j := range anacondaTweets[i].ExtendedEntities.Media {
 			url, err := url.Parse(
