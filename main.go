@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an programm version.
-const Version = "0.5.2"
+const Version = "0.6.0"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -59,21 +59,18 @@ func main() {
 		os.Exit(0)
 	}
 
-	config, err := loadConfig(*pathToConfig)
+	configs, err := loadConfig(*pathToConfig)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error on loadConfig(%s): %v", *pathToConfig, err)
 		os.Exit(1)
 	}
 
-	err = ptichka(config)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on saveCache(%s): %v", config.CacheFile, err)
-		os.Exit(1)
+	for _, config := range configs.Accounts {
+		go ptichka(&config)
 	}
-
 }
 
-func ptichka(config *config) error {
+func ptichka(config *config) {
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error on loadCache(%s): %v", config.CacheFile, err)
@@ -176,7 +173,10 @@ func ptichka(config *config) error {
 
 	err = saveCache(config.CacheFile, newIds)
 
-	return err
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error on saveCache(%s): %v", config.CacheFile, err)
+		os.Exit(1)
+	}
 }
 
 func tweetBody(t Tweet) (string, error) {

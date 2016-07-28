@@ -4,6 +4,10 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+type configs struct {
+	Accounts []config
+}
+
 type config struct {
 	CacheFile string `toml:"cache_file"`
 	Label     string
@@ -33,10 +37,10 @@ type config struct {
 	}
 }
 
-func loadConfig(path string) (*config, error) {
-	var config *config
+func loadConfig(path string) (*configs, error) {
+	var configs *configs
 
-	_, err := toml.DecodeFile(path, &config)
+	_, err := toml.DecodeFile(path, &configs)
 
-	return config, err
+	return configs, err
 }

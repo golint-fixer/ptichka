@@ -1,27 +1,56 @@
-cache_file = ".ptichka.json"
-label = "[twitter] "
-verbose = true
+[[accounts]]
 
-[mail]
+  cache_file = ".ptichka1.json"
+  label = "[twitter account 1] "
 
-  [mail.from]
-    address = "noreply@example.com"
-    name = "Foo"
+  [accounts.twitter]
+    consumer_key = "your-consumer-key1"
+    consumer_secret = "your-consumer-secret1"
+    access_token = "your-access-token1"
+    access_token_secret = "your-access-token-secret1"
 
-  [mail.to]
-    address = "your.mail@example.org"
-    name = "Bar"
+  [accounts.mail]
 
-  method = "smtp"
+    [accounts.mail.to]
+      address = "your.mail+twitter1@example.org"
+      name = "Foo"
 
-  [mail.smtp]
-    address = "mail.example.com"
-    password = "your_password"
-    port = 25
-    user_name = "your.mail@example.org"
+    [accounts.mail.from]
+      address = "noreply@example.com"
+      name = "Noreply"
 
-[twitter]
-  consumer_key = "your-consumer-key"
-  consumer_secret = "your-consumer-secret"
-  access_token = "your-access-token"
-  access_token_secret = "your-access-token-secret"
+    method = "smtp"
+
+    [accounts.mail.smtp]
+      address = "mail.example.com"
+      password = "your_password"
+      port = 25
+      user_name = "your.mail@example.org"
+
+[[accounts]]
+
+  cache_file = ".ptichka2.json"
+  label = "[twitter account 2] "
+
+  [accounts.twitter]
+    consumer_key = "your-consumer-key2"
+    consumer_secret = "your-consumer-secret2"
+    access_token = "your-access-token2"
+    access_token_secret = "your-access-token-secret2"
+
+  [accounts.mail]
+    [accounts.mail.to]
+      address = "your.mail+twitter2@example.org"
+      name = "Foo"
+
+    [accounts.mail.from]
+      address = "noreply@example.com"
+      name = "Noreply"
+
+    method = "smtp"
+
+    [accounts.mail.smtp]
+      address = "mail.example.com"
+      password = "your_password"
+      port = 25
+      user_name = "your.mail@example.org"
