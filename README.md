@@ -8,9 +8,10 @@ Fetch [timeline][](s) tweets and sends by SMTP
 
 ## Description
 
-`ptichka` should be run by cron periodically.
+`ptichka` should be run periodically (for example by cron).
 
-`ptichka` get your Twitter timeline messages and send them to you by email.
+`ptichka` will get your Twitter timeline(s) messages
+and sends them to you by email.
 
 ## Install
 
