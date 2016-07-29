@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"../../../ptichka"
+	"github.com/danil/ptichka"
 )
 
 func main() {
