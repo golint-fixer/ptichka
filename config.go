@@ -1,4 +1,4 @@
-package main
+package ptichka
 
 import (
 	"github.com/BurntSushi/toml"
@@ -37,7 +37,7 @@ type config struct {
 	}
 }
 
-func loadConfig(path string) (*configs, error) {
+func LoadConfig(path string) (*configs, error) {
 	var configs *configs
 
 	_, err := toml.DecodeFile(path, &configs)

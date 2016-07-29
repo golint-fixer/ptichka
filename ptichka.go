@@ -1,8 +1,7 @@
-package main
+package ptichka
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"html"
 	"io"
@@ -19,8 +18,8 @@ import (
 	"gopkg.in/jordan-wright/email.v2"
 )
 
-// Version is an programm version.
-const Version = "0.6.3"
+// Version is an package version.
+const Version = "0.6.4"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -48,45 +47,8 @@ func (a TweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 // Swap swaps the elements with indexes i and j.
 func (a TweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
-func main() {
-	version := flag.Bool("version", false, "display version information and exit")
-	pathToConfig := flag.String("config", "", "path to config")
-
-	flag.Parse()
-
-	if *version {
-		fmt.Println(Version)
-		os.Exit(0)
-	}
-
-	configs, err := loadConfig(*pathToConfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on loadConfig(%s): %v", *pathToConfig, err)
-		os.Exit(1)
-	}
-
-	ch := make(chan error)
-	for _, config := range configs.Accounts {
-		go ptichka(&config, ch)
-	}
-
-	var errors []error
-	for range configs.Accounts {
-		err = <-ch
-		if err != nil {
-			errors = append(errors, <-ch)
-		}
-	}
-
-	if len(errors) > 0 {
-		for _, err := range errors {
-			fmt.Fprintf(os.Stderr, "Error: %v", err)
-		}
-		os.Exit(1)
-	}
-}
-
-func ptichka(config *config, ch chan<- error) {
+// Fly fetch home timeline and sends by SMTP.
+func Fly(config *config, ch chan<- error) {
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
 		ch <- err

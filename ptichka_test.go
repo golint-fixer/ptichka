@@ -1,4 +1,4 @@
-package main
+package ptichka
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestMain(t *testing.T) {
+func TestFly(t *testing.T) {
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
 		log.Fatal(err)

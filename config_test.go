@@ -1,13 +1,13 @@
-package main
+package ptichka
 
 import (
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	configs, err := loadConfig(".ptichkarc.toml.example")
+	configs, err := LoadConfig(".ptichkarc.toml.example")
 	if err != nil {
-		t.Errorf("Error on loadConfig(\".ptichkarc.toml.example\"): %v", err)
+		t.Errorf("Error on LoadConfig(\".ptichkarc.toml.example\"): %v", err)
 	}
 
 	config := configs.Accounts[0]

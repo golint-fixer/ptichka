@@ -1,4 +1,4 @@
-package main
+package ptichka
 
 import (
 	"io/ioutil"
