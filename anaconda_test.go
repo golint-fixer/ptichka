@@ -47,7 +47,7 @@ func TestToTweets(t *testing.T) {
   }
 ]`)
 
-	var anacondaTweets AnacondaTweets
+	var anacondaTweets anacondaTweets
 	err := json.Unmarshal(jsonBlob, &anacondaTweets)
 	if err != nil {
 		log.Fatal(err)

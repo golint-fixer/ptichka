@@ -8,10 +8,9 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 )
 
-// AnacondaTweets is a collection of the anaconda.Tweet.
-type AnacondaTweets []anaconda.Tweet
+type anacondaTweets []anaconda.Tweet
 
-func fetchTweets(config *config) (AnacondaTweets, error) {
+func fetchTweets(config *config) (anacondaTweets, error) {
 	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
 	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
 	api := anaconda.NewTwitterApi(
@@ -21,7 +20,7 @@ func fetchTweets(config *config) (AnacondaTweets, error) {
 	return anacondaTweets, err
 }
 
-func (anacondaTweets AnacondaTweets) toTweets() (TweetsByDate, error) {
+func (anacondaTweets anacondaTweets) toTweets() (TweetsByDate, error) {
 	tweets := make(TweetsByDate, len(anacondaTweets))
 	for i := range anacondaTweets {
 		date, err := time.Parse(time.RubyDate, anacondaTweets[i].CreatedAt)
