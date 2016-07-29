@@ -44,6 +44,15 @@ So if your have high flow then should process them often.
 
 [200 messages]: https://dev.twitter.com/rest/reference/get/statuses/home_timeline#api-param-count
 
+### Temporary files are not deleted properly
+
+Temporary files clutter the hard disk(
+
+### Emails sent twice
+
+If the configuration with the two accounts
+the same letter sent twice.
+
 ### SMTP with SLL/TLS not supported
 
 SLL/TLS not supported but STARTTLS should work.
