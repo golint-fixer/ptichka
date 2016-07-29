@@ -12,7 +12,6 @@ type Configs struct {
 type config struct {
 	CacheFile string `toml:"cache_file"`
 	Label     string
-	Verbose   bool
 	Mail      struct {
 		From struct {
 			Address string

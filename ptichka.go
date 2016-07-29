@@ -86,10 +86,6 @@ func Fly(config *config, errCh chan<- error) {
 			currentTweet.UserScreenName,
 			currentTweet.Date.Format("2006-01-02 15:04 -0700"))
 
-		if config.Verbose {
-			print("Sending: " + subject)
-		}
-
 		body, err := tweetBody(Tweet{
 			IDStr:          currentTweet.IDStr,
 			UserScreenName: currentTweet.UserScreenName,
@@ -155,10 +151,6 @@ func Fly(config *config, errCh chan<- error) {
 		if err != nil {
 			errCh <- err
 			return
-		}
-
-		if config.Verbose {
-			print("\n")
 		}
 	}
 
