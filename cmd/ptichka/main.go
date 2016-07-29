@@ -34,7 +34,7 @@ func main() {
 	for range configs.Accounts {
 		err = <-ch
 		if err != nil {
-			errors = append(errors, <-ch)
+			errors = append(errors, err)
 		}
 	}
 

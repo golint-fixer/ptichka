@@ -1,6 +1,7 @@
 2016-07-29  Danil Kutkevich  <danil@kutkevich.org>
 
         * ptichka.go (Fly): Separate in two package (lib and cmd)
+        * ptichka.go (getMedia): Downloads attachments in goroutines.
 
 2016-07-28  Danil Kutkevich  <danil@kutkevich.org>
 

@@ -10,6 +10,7 @@ import (
 	"net/mail"
 	"net/smtp"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"text/template"
@@ -19,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.6"
+const Version = "0.6.7"
 
 // Tweet is a simplified anaconda.Tweet.
 type Tweet struct {
@@ -48,22 +49,22 @@ func (a TweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a TweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 // Fly fetch home timeline and sends by SMTP.
-func Fly(config *config, ch chan<- error) {
+func Fly(config *config, errCh chan<- error) {
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
-		ch <- err
+		errCh <- err
 		return
 	}
 
 	anacondaTweets, err := fetchTweets(config)
 	if err != nil {
-		ch <- err
+		errCh <- err
 		return
 	}
 
 	tweets, err := anacondaTweets.toTweets()
 	if err != nil {
-		ch <- err
+		errCh <- err
 		return
 	}
 
@@ -94,7 +95,7 @@ func Fly(config *config, ch chan<- error) {
 			UserScreenName: currentTweet.UserScreenName,
 			Text:           currentTweet.Text})
 		if err != nil {
-			ch <- err
+			errCh <- err
 			return
 		}
 
@@ -111,43 +112,35 @@ func Fly(config *config, ch chan<- error) {
 		message.Subject = subject
 		message.Text = []byte(body)
 
-		for _, media := range currentTweet.Medias {
-			response, err := http.Get(media)
+		mediaCh := make(chan string)
+		mediaErrCh := make(chan error)
+		for _, mediaURL := range currentTweet.Medias {
+			go getMedia(mediaURL, currentTweet.IDStr, mediaCh, mediaErrCh)
+		}
+
+		var mediaPaths []string
+		for range currentTweet.Medias {
+			mediaPaths = append(mediaPaths, <-mediaCh)
+		}
+
+		var errors []error
+		for range currentTweet.Medias {
+			err = <-mediaErrCh
 			if err != nil {
-				ch <- err
-				return
+				errors = append(errors, err)
 			}
-			defer func() { _ = response.Body.Close() }()
+		}
 
-			tempDir, err := ioutil.TempDir(
-				os.TempDir(),
-				fmt.Sprintf("ptichka_%s", currentTweet.IDStr))
+		if len(errors) > 0 {
+			errCh <- errors[0]
+			return
+		}
+
+		for _, mediaPath := range mediaPaths {
+			_, err = message.AttachFile(mediaPath)
+			defer func() { _ = os.RemoveAll(path.Dir(mediaPath)) }()
 			if err != nil {
-				ch <- err
-				return
-			}
-			defer func() { _ = os.Remove(tempDir) }()
-
-			_, fileName := filepath.Split(media)
-
-			tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
-
-			tempFile, err := os.Create(tempFilePath)
-			if err != nil {
-				ch <- err
-				return
-			}
-			defer func() { _ = tempFile.Close() }()
-
-			_, err = io.Copy(tempFile, response.Body)
-			if err != nil {
-				ch <- err
-				return
-			}
-
-			_, err = message.AttachFile(tempFilePath)
-			if err != nil {
-				ch <- err
+				errCh <- err
 				return
 			}
 		}
@@ -160,7 +153,7 @@ func Fly(config *config, ch chan<- error) {
 				config.Mail.SMTP.Password,
 				config.Mail.SMTP.Address))
 		if err != nil {
-			ch <- err
+			errCh <- err
 			return
 		}
 
@@ -171,10 +164,56 @@ func Fly(config *config, ch chan<- error) {
 
 	err = saveCache(config.CacheFile, newIds)
 	if err != nil {
-		ch <- err
+		errCh <- err
 	}
 
-	ch <- nil
+	errCh <- nil
+}
+
+func getMedia(
+	mediaURL string,
+	tweetID string,
+	ch chan<- string,
+	errCh chan<- error) {
+
+	response, err := http.Get(mediaURL)
+	if err != nil {
+		ch <- ""
+		errCh <- err
+		return
+	}
+	defer func() { _ = response.Body.Close() }()
+
+	tempDir, err := ioutil.TempDir(
+		os.TempDir(),
+		fmt.Sprintf("ptichka_%s", tweetID))
+	if err != nil {
+		ch <- ""
+		errCh <- err
+		return
+	}
+
+	_, fileName := filepath.Split(mediaURL)
+
+	tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
+
+	tempFile, err := os.Create(tempFilePath)
+	if err != nil {
+		ch <- ""
+		errCh <- err
+		return
+	}
+	defer func() { _ = tempFile.Close() }()
+
+	_, err = io.Copy(tempFile, response.Body)
+	if err != nil {
+		ch <- ""
+		errCh <- err
+		return
+	}
+
+	ch <- tempFilePath
+	errCh <- nil
 }
 
 func tweetBody(t Tweet) (string, error) {
