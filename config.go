@@ -4,7 +4,8 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type configs struct {
+// Configs ia an structure with collection of timelines configs.
+type Configs struct {
 	Accounts []config
 }
 
@@ -37,8 +38,9 @@ type config struct {
 	}
 }
 
-func LoadConfig(path string) (*configs, error) {
-	var configs *configs
+// LoadConfig load TOML config files.
+func LoadConfig(path string) (*Configs, error) {
+	var configs *Configs
 
 	_, err := toml.DecodeFile(path, &configs)
 
