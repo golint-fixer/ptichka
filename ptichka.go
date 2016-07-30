@@ -1,3 +1,4 @@
+// Package ptichka fetch timeline tweets and sends by SMTP.
 package ptichka
 
 import (
