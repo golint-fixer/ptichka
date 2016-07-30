@@ -28,12 +28,14 @@ func (anacondaTweets anacondaTweets) toTweets() (TweetsByDate, error) {
 			return tweets, err
 		}
 
-		var medias []string
+		var medias []media
 		for j := range anacondaTweets[i].ExtendedEntities.Media {
 			url, err := url.Parse(
 				anacondaTweets[i].ExtendedEntities.Media[j].Media_url_https)
 			if err == nil {
-				medias = append(medias, url.String())
+				medias = append(medias, media{
+					IDStr:         anacondaTweets[i].ExtendedEntities.Media[j].Id_str,
+					MediaURLHttps: url.String()})
 			}
 		}
 		var text string

@@ -52,7 +52,7 @@ func TestToTweets(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tweets, err := anacondaTweets.toTweets()
+	ptichkaTweets, err := anacondaTweets.toTweets()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,62 +73,62 @@ func TestToTweets(t *testing.T) {
 			Date:           time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
 			Text:           "foo bar",
-			Medias: []string{
-				"https://pbs.twimg.com/media/qwertyuiopasdfg.jpg",
-				"https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}},
+			Medias: []media{
+				{MediaURLHttps: "https://pbs.twimg.com/media/qwertyuiopasdfg.jpg"},
+				{MediaURLHttps: "https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}}},
 
 		Tweet{
 			IDStr:          "333333333333333333",
 			Date:           time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
 			UserScreenName: "gunterschmidt",
 			Text:           "baz xyz",
-			Medias: []string{
-				"https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}}}
+			Medias: []media{
+				{MediaURLHttps: "https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}}}}
 
 	for i := range referenceTweets {
 		referenceTweet := referenceTweets[i]
-		tweet := tweets[i]
+		ptichkaTweet := ptichkaTweets[i]
 
-		if referenceTweet.IDStr != tweet.IDStr {
+		if referenceTweet.IDStr != ptichkaTweet.IDStr {
 			t.Errorf(
 				"ReferenceTweet.IDStr{%q} =! anaconda.Tweet.IdStr{%q}",
 				referenceTweet.IDStr,
-				tweet.IDStr)
+				ptichkaTweet.IDStr)
 		}
 
-		if !referenceTweet.Date.Equal(tweet.Date) {
+		if !referenceTweet.Date.Equal(ptichkaTweet.Date) {
 			t.Errorf(
 				"ReferenceTweet.Date{%q} =! anaconda.Tweet.createdAt{%q}",
 				referenceTweet.Date,
-				tweet.Date)
+				ptichkaTweet.Date)
 		}
 
-		if referenceTweet.UserScreenName != tweet.UserScreenName {
+		if referenceTweet.UserScreenName != ptichkaTweet.UserScreenName {
 			t.Errorf(
 				"ReferenceTweet.UserScreenName{%q} =! anaconda.Tweet.User.ScreenName{%q}",
 				referenceTweet.UserScreenName,
-				tweet.UserScreenName)
+				ptichkaTweet.UserScreenName)
 		}
 
-		if referenceTweet.Text != tweet.Text {
+		if referenceTweet.Text != ptichkaTweet.Text {
 			t.Errorf(
 				"ReferenceTweet.Text{%q} =! anaconda.Tweet.Text{%q}",
 				referenceTweet.Text,
-				tweet.Text)
+				ptichkaTweet.Text)
 		}
 
 		for j := range referenceTweet.Medias {
-			referenceMedia := referenceTweet.Medias[j]
-			media := tweet.Medias[j]
+			referenceMedia := referenceTweet.Medias[j].MediaURLHttps
+			ptichkaMedia := ptichkaTweet.Medias[j].MediaURLHttps
 
-			if referenceMedia != media {
+			if referenceMedia != ptichkaMedia {
 				t.Errorf(
 					"ReferenceTweet.Medias[%d]{%q} "+
 						"=! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
 					j,
 					referenceMedia,
 					j,
-					media)
+					ptichkaMedia)
 			}
 		}
 	}

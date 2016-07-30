@@ -1,3 +1,7 @@
+2016-07-30  Danil Kutkevich  <danil@kutkevich.org>
+
+        * ptichka.go (Fly, getMedia): Downloads all attachments at one time.
+
 2016-07-29  Danil Kutkevich  <danil@kutkevich.org>
 
         * ptichka.go (Fly): Separate in two package (lib and cmd)

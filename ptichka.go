@@ -10,7 +10,6 @@ import (
 	"net/mail"
 	"net/smtp"
 	"os"
-	"path"
 	"path/filepath"
 	"sort"
 	"text/template"
@@ -20,19 +19,28 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.7"
+const Version = "0.6.8"
 
 // Tweet is a simplified anaconda.Tweet.
+// FIXME: Maybe ptichka.Tweet should not be exported?
 type Tweet struct {
 	IDStr          string
 	UserScreenName string
 	Date           time.Time
 	Text           string
-	Medias         []string
+	Medias         []media
+}
+
+// media is an simplified anaconda EntityMedia.
+type media struct {
+	IDStr          string
+	MediaURLHttps  string
+	DownloadedPath string
 }
 
 // TweetsByDate is a slice of Tweet
 // with ability to be sorted by date from older to newer.
+// FIXME: Maybe ptichka.TweetsByDate should not be exported?
 type TweetsByDate []Tweet
 
 // <https://github.com/wskinner/anaconda/commit/d0c12d8fba671d7d5ce27d3abd1809aedcc59195>,
@@ -70,26 +78,66 @@ func Fly(config *config, errCh chan<- error) {
 
 	sort.Sort(tweets)
 
+	var newTweets TweetsByDate
 	newIds := oldIds
+	newMedias := make(map[string]media)
 
+	tempDirPath, err := ioutil.TempDir(os.TempDir(), "ptichka_")
+	defer func() { _ = os.RemoveAll(tempDirPath) }()
+	if err != nil {
+		errCh <- err
+		return
+	}
+
+	mediaCh := make(chan media)
+	mediaErrCh := make(chan error)
 	for _, currentTweet := range tweets {
 		if contains(oldIds, currentTweet.IDStr) {
 			continue
 		}
 
+		newTweets = append(newTweets, currentTweet)
 		newIds = append(newIds, currentTweet.IDStr)
 
+		for _, m := range currentTweet.Medias {
+			newMedias[m.IDStr] = m
+		}
+	}
+
+	for _, m := range newMedias {
+		go getMedia(m, tempDirPath, mediaCh, mediaErrCh)
+	}
+
+	for range newMedias {
+		newMedia := <-mediaCh
+		newMedias[newMedia.IDStr] = newMedia
+	}
+
+	var errs []error
+	for range newMedias {
+		err = <-mediaErrCh
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	if len(errs) > 0 {
+		errCh <- errs[0]
+		return
+	}
+
+	for _, newTweet := range newTweets {
 		// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
 		subject := fmt.Sprintf(
 			"%s@%s %s",
 			config.Label,
-			currentTweet.UserScreenName,
-			currentTweet.Date.Format("2006-01-02 15:04 -0700"))
+			newTweet.UserScreenName,
+			newTweet.Date.Format("2006-01-02 15:04 -0700"))
 
 		body, err := tweetBody(Tweet{
-			IDStr:          currentTweet.IDStr,
-			UserScreenName: currentTweet.UserScreenName,
-			Text:           currentTweet.Text})
+			IDStr:          newTweet.IDStr,
+			UserScreenName: newTweet.UserScreenName,
+			Text:           newTweet.Text})
 		if err != nil {
 			errCh <- err
 			return
@@ -108,33 +156,10 @@ func Fly(config *config, errCh chan<- error) {
 		message.Subject = subject
 		message.Text = []byte(body)
 
-		mediaCh := make(chan string)
-		mediaErrCh := make(chan error)
-		for _, mediaURL := range currentTweet.Medias {
-			go getMedia(mediaURL, currentTweet.IDStr, mediaCh, mediaErrCh)
-		}
-
-		var mediaPaths []string
-		for range currentTweet.Medias {
-			mediaPaths = append(mediaPaths, <-mediaCh)
-		}
-
-		var errors []error
-		for range currentTweet.Medias {
-			err = <-mediaErrCh
-			if err != nil {
-				errors = append(errors, err)
-			}
-		}
-
-		if len(errors) > 0 {
-			errCh <- errors[0]
-			return
-		}
-
-		for _, mediaPath := range mediaPaths {
-			_, err = message.AttachFile(mediaPath)
-			defer func() { _ = os.RemoveAll(path.Dir(mediaPath)) }()
+		for _, m := range newTweet.Medias {
+			// Follow the assumption that the medias id_str is unique
+			// for the whole Twitter.
+			_, err = message.AttachFile(newMedias[m.IDStr].DownloadedPath)
 			if err != nil {
 				errCh <- err
 				return
@@ -163,35 +188,26 @@ func Fly(config *config, errCh chan<- error) {
 }
 
 func getMedia(
-	mediaURL string,
-	tweetID string,
-	ch chan<- string,
+	newMedia media,
+	tempDirPath string,
+	ch chan<- media,
 	errCh chan<- error) {
 
-	response, err := http.Get(mediaURL)
+	response, err := http.Get(newMedia.MediaURLHttps)
 	if err != nil {
-		ch <- ""
+		ch <- newMedia
 		errCh <- err
 		return
 	}
 	defer func() { _ = response.Body.Close() }()
 
-	tempDir, err := ioutil.TempDir(
-		os.TempDir(),
-		fmt.Sprintf("ptichka_%s", tweetID))
-	if err != nil {
-		ch <- ""
-		errCh <- err
-		return
-	}
+	_, fileName := filepath.Split(newMedia.MediaURLHttps)
 
-	_, fileName := filepath.Split(mediaURL)
-
-	tempFilePath := fmt.Sprintf("%s/%s", tempDir, fileName)
+	tempFilePath := fmt.Sprintf("%s/%s", tempDirPath, fileName)
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
-		ch <- ""
+		ch <- newMedia
 		errCh <- err
 		return
 	}
@@ -199,12 +215,14 @@ func getMedia(
 
 	_, err = io.Copy(tempFile, response.Body)
 	if err != nil {
-		ch <- ""
+		ch <- newMedia
 		errCh <- err
 		return
 	}
 
-	ch <- tempFilePath
+	newMedia.DownloadedPath = tempFilePath
+
+	ch <- newMedia
 	errCh <- nil
 }
 
