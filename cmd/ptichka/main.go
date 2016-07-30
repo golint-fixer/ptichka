@@ -30,16 +30,16 @@ func main() {
 		go ptichka.Fly(&config, ch)
 	}
 
-	var errors []error
+	var errs []error
 	for range configs.Accounts {
 		err = <-ch
 		if err != nil {
-			errors = append(errors, err)
+			errs = append(errs, err)
 		}
 	}
 
-	if len(errors) > 0 {
-		for _, err := range errors {
+	if len(errs) > 0 {
+		for _, err := range errs {
 			fmt.Fprintf(os.Stderr, "Error: %v", err)
 		}
 		os.Exit(1)
