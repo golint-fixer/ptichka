@@ -244,7 +244,7 @@ https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
 		UserScreenName: t.UserScreenName,
 		Text:           html.UnescapeString(t.Text)})
 
-	return x.String(), err // TODO: remove extra conversion byte->string->byte
+	return x.String(), err
 }
 
 func contains(ids []string, id string) bool {
