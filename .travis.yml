@@ -8,14 +8,16 @@ go:
 before_script:
 - |
   go get -v -u \
+         github.com/fzipp/gocyclo \
          github.com/golang/lint/golint \
          github.com/kisielk/errcheck \
-         github.com/mdempsky/unconvert \
+         github.com/mdempsky/unconvert
 script:
 - go vet ./...
 - errcheck -verbose -asserts ./...
 - unconvert -v .
 - golint -set_exit_status ./...
+- gocyclo -over 25 ./
 - go test -v ./...
 before_deploy:
 - cd $TRAVIS_BUILD_DIR/cmd/ptichka

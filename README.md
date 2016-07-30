@@ -4,7 +4,8 @@ Fetch [timeline][](s) tweets and sends by SMTP
 
 [timeline]: https://dev.twitter.com/rest/reference/get/statuses/home_timeline
 
-[![Build Status](https://travis-ci.org/danil/ptichka.svg)](https://travis-ci.org/danil/ptichka)
+[![build status](https://travis-ci.org/danil/ptichka.svg)](https://travis-ci.org/danil/ptichka)
+[![cyclomatic complexity](https://goreportcard.com/badge/github.com/danil/ptichka)](https://goreportcard.com/report/github.com/danil/ptichka)
 
 ## Description
 
