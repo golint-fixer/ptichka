@@ -21,9 +21,8 @@ import (
 // Version is an package version.
 const Version = "0.6.8"
 
-// Tweet is a simplified anaconda.Tweet.
-// FIXME: Maybe ptichka.Tweet should not be exported?
-type Tweet struct {
+// tweet is a simplified anaconda.Tweet.
+type tweet struct {
 	IDStr          string
 	UserScreenName string
 	Date           time.Time
@@ -38,23 +37,22 @@ type media struct {
 	DownloadedPath string
 }
 
-// TweetsByDate is a slice of Tweet
+// tweetsByDate is a slice of tweet
 // with ability to be sorted by date from older to newer.
-// FIXME: Maybe ptichka.TweetsByDate should not be exported?
-type TweetsByDate []Tweet
+type tweetsByDate []tweet
 
 // <https://github.com/wskinner/anaconda/commit/d0c12d8fba671d7d5ce27d3abd1809aedcc59195>,
 // <http://nerdyworm.com/blog/2013/05/15/sorting-a-slice-of-structs-in-go/>.
 
 // Len is the number of elements in the collection.
-func (a TweetsByDate) Len() int { return len(a) }
+func (a tweetsByDate) Len() int { return len(a) }
 
 // Less reports whether the element with index i should sort before
 // the element with index j.
-func (a TweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a tweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 
 // Swap swaps the elements with indexes i and j.
-func (a TweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
+func (a tweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 // Fly fetch home timeline and sends by SMTP.
 func Fly(config *config, errCh chan<- error) {
@@ -78,7 +76,7 @@ func Fly(config *config, errCh chan<- error) {
 
 	sort.Sort(tweets)
 
-	var newTweets TweetsByDate
+	var newTweets tweetsByDate
 	newIds := oldIds
 	newMedias := make(map[string]media)
 
@@ -134,7 +132,7 @@ func Fly(config *config, errCh chan<- error) {
 			newTweet.UserScreenName,
 			newTweet.Date.Format("2006-01-02 15:04 -0700"))
 
-		body, err := tweetBody(Tweet{
+		body, err := tweetBody(tweet{
 			IDStr:          newTweet.IDStr,
 			UserScreenName: newTweet.UserScreenName,
 			Text:           newTweet.Text})
@@ -226,7 +224,7 @@ func getMedia(
 	errCh <- nil
 }
 
-func tweetBody(t Tweet) (string, error) {
+func tweetBody(t tweet) (string, error) {
 	tmpl, err := template.New("tweet").Parse(
 		`@{{.UserScreenName}}
 
@@ -239,7 +237,7 @@ https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
 
 	var x bytes.Buffer
 
-	err = tmpl.Execute(&x, Tweet{
+	err = tmpl.Execute(&x, tweet{
 		IDStr:          t.IDStr,
 		UserScreenName: t.UserScreenName,
 		Text:           html.UnescapeString(t.Text)})

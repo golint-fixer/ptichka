@@ -20,8 +20,8 @@ func fetchTweets(config *config) (anacondaTweets, error) {
 	return anacondaTweets, err
 }
 
-func (anacondaTweets anacondaTweets) toTweets() (TweetsByDate, error) {
-	tweets := make(TweetsByDate, len(anacondaTweets))
+func (anacondaTweets anacondaTweets) toTweets() (tweetsByDate, error) {
+	tweets := make(tweetsByDate, len(anacondaTweets))
 	for i := range anacondaTweets {
 		date, err := time.Parse(time.RubyDate, anacondaTweets[i].CreatedAt)
 		if err != nil {
@@ -46,7 +46,7 @@ func (anacondaTweets anacondaTweets) toTweets() (TweetsByDate, error) {
 				anacondaTweets[i].RetweetedStatus.User.ScreenName,
 				anacondaTweets[i].RetweetedStatus.Text)
 		}
-		tweets[i] = Tweet{
+		tweets[i] = tweet{
 			IDStr:          anacondaTweets[i].IdStr,
 			UserScreenName: anacondaTweets[i].User.ScreenName,
 			Date:           date,

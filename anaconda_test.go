@@ -62,13 +62,13 @@ func TestToTweets(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	referenceTweets := TweetsByDate{
-		Tweet{
+	referenceTweets := tweetsByDate{
+		tweet{
 			IDStr:          "111111111111111111",
 			Date:           time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
 			Text:           "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"},
-		Tweet{
+		tweet{
 			IDStr:          "222222222222222222",
 			Date:           time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
@@ -77,7 +77,7 @@ func TestToTweets(t *testing.T) {
 				{MediaURLHttps: "https://pbs.twimg.com/media/qwertyuiopasdfg.jpg"},
 				{MediaURLHttps: "https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}}},
 
-		Tweet{
+		tweet{
 			IDStr:          "333333333333333333",
 			Date:           time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
 			UserScreenName: "gunterschmidt",

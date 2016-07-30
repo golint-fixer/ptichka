@@ -14,15 +14,15 @@ func TestFly(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	got := TweetsByDate{
-		Tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
-		Tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)},
-		Tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)}}
+	got := tweetsByDate{
+		tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)},
+		tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)}}
 
-	wont := TweetsByDate{
-		Tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)},
-		Tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
-		Tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)}}
+	wont := tweetsByDate{
+		tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)},
+		tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)}}
 
 	sort.Sort(got)
 
@@ -32,7 +32,7 @@ func TestFly(t *testing.T) {
 }
 
 func TestTweetBody(t *testing.T) {
-	got, err := tweetBody(Tweet{
+	got, err := tweetBody(tweet{
 		IDStr:          "1234",
 		UserScreenName: "johndoe",
 		Text:           "Hello &amp; world!"})
