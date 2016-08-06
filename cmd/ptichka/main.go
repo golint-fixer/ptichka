@@ -25,14 +25,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	ch := make(chan error)
+	errCh := make(chan error)
 	for _, config := range configs.Accounts {
-		go ptichka.Fly(&config, ch)
+		go ptichka.Fly(&config, errCh)
 	}
 
 	var errs []error
 	for range configs.Accounts {
-		err = <-ch
+		err = <-errCh
 		if err != nil {
 			errs = append(errs, err)
 		}
