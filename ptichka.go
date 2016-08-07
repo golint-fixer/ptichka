@@ -87,7 +87,11 @@ func (a tweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a tweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 // Fly fetch home timeline and sends by SMTP.
-func Fly(config *configuration, errCh chan<- error, infLogger, errLogger *log.Logger) {
+func Fly(
+	config *configuration,
+	errCh chan<- error,
+	infLogger, errLogger *log.Logger) {
+
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
 		errCh <- err
