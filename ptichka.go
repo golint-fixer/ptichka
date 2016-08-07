@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.12"
+const Version = "0.6.13"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -141,16 +141,19 @@ func Fly(config *configuration, errCh chan<- error, infLogger, errLogger *log.Lo
 
 		errCh <- smtpErr
 		return
-	} else if cacheErr != nil {
+	}
+	infLogger.Printf("%sSent %d messages", config.Label, len(newIds))
+
+	if cacheErr != nil {
 		errLogger.Printf("%sCache does not saved: %s",
 			config.Label, config.CacheFile)
 
 		errCh <- cacheErr
 		return
 	}
-
-	infLogger.Printf("%sSent %d messages", config.Label, len(newIds))
-	infLogger.Printf("%sCache saved: %s", config.Label, config.CacheFile)
+	if len(newIds) > 0 {
+		infLogger.Printf("%sCache saved: %s", config.Label, config.CacheFile)
+	}
 
 	errCh <- nil
 }
