@@ -10,7 +10,7 @@ import (
 
 type anacondaTweets []anaconda.Tweet
 
-func fetchTweets(config *config) (anacondaTweets, error) {
+func fetchTweets(config *configuration) (anacondaTweets, error) {
 	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
 	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
 	api := anaconda.NewTwitterApi(

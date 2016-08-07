@@ -56,9 +56,9 @@ func main() {
 
 		go ptichka.Fly(
 			&config,
+			errCh,
 			log.New(infHandler, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile),
-			log.New(errHandler, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile),
-			errCh)
+			log.New(errHandler, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile))
 	}
 
 	var errs []error

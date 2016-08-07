@@ -6,12 +6,12 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// Configs ia an structure with collection of timelines configs.
-type Configs struct {
-	Accounts []config
+// Configurations ia an structure with collection of timelines configurations.
+type Configurations struct {
+	Accounts []configuration
 }
 
-type config struct {
+type configuration struct {
 	CacheFile string `toml:"cache_file"`
 	Label     string
 	Verbose   bool
@@ -41,7 +41,7 @@ type config struct {
 	}
 }
 
-func (config config) mailFrom() string {
+func (config configuration) mailFrom() string {
 	from := mail.Address{
 		Name:    config.Mail.From.Name,
 		Address: config.Mail.From.Address}
@@ -49,7 +49,7 @@ func (config config) mailFrom() string {
 	return from.String()
 }
 
-func (config config) mailTo() string {
+func (config configuration) mailTo() string {
 	to := mail.Address{
 		Name:    config.Mail.To.Name,
 		Address: config.Mail.To.Address}
@@ -58,8 +58,8 @@ func (config config) mailTo() string {
 }
 
 // LoadConfig load TOML config files.
-func LoadConfig(path string) (*Configs, error) {
-	var configs *Configs
+func LoadConfig(path string) (*Configurations, error) {
+	var configs *Configurations
 
 	_, err := toml.DecodeFile(path, &configs)
 
