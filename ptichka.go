@@ -7,6 +7,7 @@ import (
 	"html"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/smtp"
 	"os"
@@ -19,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.10"
+const Version = "0.6.11"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -86,12 +87,14 @@ func (a tweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a tweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
 // Fly fetch home timeline and sends by SMTP.
-func Fly(config *config, errCh chan<- error) {
+func Fly(config *config, infLogger, errLogger *log.Logger, errCh chan<- error) {
 	oldIds, err := loadCache(config.CacheFile)
 	if err != nil {
 		errCh <- err
 		return
 	}
+
+	infLogger.Printf("%sCache loaded: %s", config.Label, config.CacheFile)
 
 	messages, err := fetch(config, oldIds)
 	if err != nil {
@@ -99,12 +102,16 @@ func Fly(config *config, errCh chan<- error) {
 		return
 	}
 
+	infLogger.Printf("%sFetched %d messages", config.Label, len(messages))
+
 	var newIds []string
 
 	// Sends mails without goroutines
 	// to preserve sort order of the mails (tweets).
+	var smtpErr error
+
 	for IDStr, message := range messages {
-		err = smtp.SendMail(
+		smtpErr = smtp.SendMail(
 			fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
 			smtp.PlainAuth(
 				"",
@@ -114,19 +121,43 @@ func Fly(config *config, errCh chan<- error) {
 			config.mailFrom(),
 			[]string{config.mailTo()},
 			message)
-		if err != nil {
-			errCh <- err
+
+		if smtpErr != nil {
 			break
 		}
+
+		infLogger.Printf("%sMessages %s sent", config.Label, IDStr)
 		newIds = append(newIds, IDStr)
 	}
-
-	if len(newIds) > 0 {
-		err = saveCache(config.CacheFile, append(oldIds, newIds...))
-		if err != nil {
-			errCh <- err
-		}
+	if smtpErr == nil {
+		infLogger.Printf("%sSent %d messages", config.Label, len(newIds))
 	}
+
+	var cacheErr error
+	if len(newIds) > 0 {
+		cacheErr = saveCache(config.CacheFile, append(oldIds, newIds...))
+	}
+	if smtpErr == nil {
+		infLogger.Printf("%sCache saved: %s", config.Label, config.CacheFile)
+	}
+
+	if smtpErr != nil {
+		errLogger.Printf(
+			"%sSent %d messages, %d messages does not sent",
+			config.Label, len(newIds), len(messages)-len(newIds))
+
+		errCh <- smtpErr
+		return
+	} else if cacheErr != nil {
+		errLogger.Printf(
+			"%sCache does not saved: %s",
+			config.Label, config.CacheFile)
+
+		errCh <- cacheErr
+		return
+	}
+
+	errCh <- nil
 }
 
 // fetch fetch home timeline and returns

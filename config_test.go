@@ -15,7 +15,7 @@ func TestLoadConfig(t *testing.T) {
 	var wont string
 	var wontInt int
 
-	wont = ".ptichka1.json"
+	wont = "/path/to/cache/file1.json"
 	if config.CacheFile != wont {
 		t.Errorf("CacheFile == %v, want %v", config.CacheFile, wont)
 	}

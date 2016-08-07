@@ -1,7 +1,9 @@
 [[accounts]]
 
-  cache_file = ".ptichka1.json"
+  cache_file = "/path/to/cache/file1.json"
   label = "[twitter account 1] "
+  verbose = true
+  log_file = "/path/to/log/file1.json"
 
   [accounts.twitter]
     consumer_key = "your-consumer-key1"
@@ -29,7 +31,7 @@
 
 [[accounts]]
 
-  cache_file = ".ptichka2.json"
+  cache_file = "/path/to/cache/file2.json"
   label = "[twitter account 2] "
 
   [accounts.twitter]
