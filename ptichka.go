@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.13"
+const Version = "0.6.14"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -206,7 +206,16 @@ func fetch(
 	var tempDirPath string
 	if len(newMedias) > 0 {
 		tempDirPath, err = ioutil.TempDir(os.TempDir(), "ptichka_")
-		defer func() { _ = os.RemoveAll(tempDirPath) }()
+		defer func() {
+			err := os.RemoveAll(tempDirPath)
+			if err != nil {
+				errLogger.Printf("%sTemporary directory does not removed %s: %v",
+					config.Label, tempDirPath, err)
+			} else {
+				errLogger.Printf("%sTemporary directory removed: %s",
+					config.Label, tempDirPath)
+			}
+		}()
 		if err != nil {
 			errLogger.Printf("%sTemporary directory does not created", config.Label)
 			return messages, err
@@ -229,7 +238,7 @@ func fetch(
 	}
 	var errs []error
 	for range newMedias {
-		err = <-mediaErrCh
+		err := <-mediaErrCh
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -255,7 +264,7 @@ func fetch(
 		for _, m := range newTweet.Medias {
 			// Follow the assumption that the medias id_str is unique
 			// for the whole Twitter.
-			_, err = message.AttachFile(newMedias[m.IDStr].DownloadedPath)
+			_, err := message.AttachFile(newMedias[m.IDStr].DownloadedPath)
 			if err != nil {
 				return messages, err
 			}
@@ -293,7 +302,16 @@ func getMedia(
 		errCh <- err
 		return
 	}
-	defer func() { _ = response.Body.Close() }()
+	defer func() {
+		err := response.Body.Close()
+		if err != nil {
+			errLogger.Printf("%sAttachment response body does not closed %s %s: %v",
+				config.Label, newMedia.IDStr, newMedia.MediaURLHttps, err)
+		} else {
+			errLogger.Printf("%sAttachment response body closed %s %s",
+				config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
+		}
+	}()
 	infLogger.Printf("%sAttachment %s %s downloaded",
 		config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 
@@ -310,7 +328,16 @@ func getMedia(
 		errCh <- err
 		return
 	}
-	defer func() { _ = tempFile.Close() }()
+	defer func() {
+		err := tempFile.Close()
+		if err != nil {
+			errLogger.Printf("%sTemporary file does not closed %s: %v",
+				config.Label, tempDirPath, err)
+		} else {
+			errLogger.Printf("%sTemporary file closed: %s",
+				config.Label, tempFilePath)
+		}
+	}()
 	infLogger.Printf("%sTemporary file created: %s", config.Label, tempFilePath)
 
 	_, err = io.Copy(tempFile, response.Body)
