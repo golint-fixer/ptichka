@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.15"
+const Version = "0.6.16"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -212,7 +212,7 @@ func fetch(
 				errLogger.Printf("%sTemporary directory does not removed: %s %v",
 					config.Label, tempDirPath, err)
 			} else {
-				errLogger.Printf("%sTemporary directory removed: %s",
+				infLogger.Printf("%sTemporary directory removed: %s",
 					config.Label, tempDirPath)
 			}
 		}()
@@ -309,7 +309,7 @@ func getMedia(
 			errLogger.Printf("%sAttachment response body does not closed: %s %s %v",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps, err)
 		} else {
-			errLogger.Printf("%sAttachment response body closed: %s %s",
+			infLogger.Printf("%sAttachment response body closed: %s %s",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 		}
 	}()
@@ -335,7 +335,7 @@ func getMedia(
 			errLogger.Printf("%sTemporary file does not closed: %s %v",
 				config.Label, tempDirPath, err)
 		} else {
-			errLogger.Printf("%sTemporary file closed: %s",
+			infLogger.Printf("%sTemporary file closed: %s",
 				config.Label, tempFilePath)
 		}
 	}()
