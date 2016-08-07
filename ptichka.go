@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.14"
+const Version = "0.6.15"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -102,7 +102,7 @@ func Fly(config *configuration, errCh chan<- error, infLogger, errLogger *log.Lo
 		return
 	}
 
-	infLogger.Printf("%sFetched %d messages", config.Label, len(messages))
+	infLogger.Printf("%sFetched messages: %d", config.Label, len(messages))
 
 	var newIds []string
 
@@ -126,7 +126,7 @@ func Fly(config *configuration, errCh chan<- error, infLogger, errLogger *log.Lo
 			break
 		}
 
-		infLogger.Printf("%sMessages %s sent", config.Label, IDStr)
+		infLogger.Printf("%sMessages sent: %s", config.Label, IDStr)
 		newIds = append(newIds, IDStr)
 	}
 
@@ -136,13 +136,13 @@ func Fly(config *configuration, errCh chan<- error, infLogger, errLogger *log.Lo
 	}
 
 	if smtpErr != nil {
-		errLogger.Printf("%sSent %d messages, %d messages does not sent",
+		errLogger.Printf("%sSent messages: %d, messages does not sent: %d",
 			config.Label, len(newIds), len(messages)-len(newIds))
 
 		errCh <- smtpErr
 		return
 	}
-	infLogger.Printf("%sSent %d messages", config.Label, len(newIds))
+	infLogger.Printf("%sSent messages: %d", config.Label, len(newIds))
 
 	if cacheErr != nil {
 		errLogger.Printf("%sCache does not saved: %s",
@@ -173,7 +173,7 @@ func fetch(
 		errLogger.Printf("%sTweets does not fetched", config.Label)
 		return messages, err
 	}
-	infLogger.Printf("%s%d tweets fetched", config.Label, len(anacondaTweets))
+	infLogger.Printf("%sTweets fetched: %d", config.Label, len(anacondaTweets))
 
 	tweets, err := anacondaTweets.toTweets()
 	if err != nil {
@@ -200,7 +200,7 @@ func fetch(
 	}
 
 	if len(newTweets) > 0 {
-		infLogger.Printf("%s%d new tweets fetched", config.Label, len(newTweets))
+		infLogger.Printf("%sNew tweets fetched: %d", config.Label, len(newTweets))
 	}
 
 	var tempDirPath string
@@ -209,7 +209,7 @@ func fetch(
 		defer func() {
 			err := os.RemoveAll(tempDirPath)
 			if err != nil {
-				errLogger.Printf("%sTemporary directory does not removed %s: %v",
+				errLogger.Printf("%sTemporary directory does not removed: %s %v",
 					config.Label, tempDirPath, err)
 			} else {
 				errLogger.Printf("%sTemporary directory removed: %s",
@@ -217,7 +217,8 @@ func fetch(
 			}
 		}()
 		if err != nil {
-			errLogger.Printf("%sTemporary directory does not created", config.Label)
+			errLogger.Printf("%sTemporary directory does not created: %s",
+				config.Label, tempDirPath)
 			return messages, err
 		}
 		infLogger.Printf("%sTemporary directory created: %s",
@@ -243,7 +244,7 @@ func fetch(
 			errs = append(errs, err)
 		}
 	}
-	infLogger.Printf("%s%d attachments downloaded", config.Label, len(newMedias))
+	infLogger.Printf("%sAttachments downloaded: %d", config.Label, len(newMedias))
 	if len(errs) > 0 {
 		errLogger.Printf("%sErrors when downloading attachments: %v", config.Label, errs)
 		return messages, errs[0]
@@ -272,13 +273,13 @@ func fetch(
 
 		rawMessage, err := message.Bytes()
 		if err != nil {
-			errLogger.Printf("%sError when generating raw mail %s: %v",
+			errLogger.Printf("%sError when generating raw mail: %s %v",
 				config.Label, newTweet.IDStr, errs)
 
 			return messages, err
 		}
 
-		infLogger.Printf("%sRaw mail %s generated", config.Label, newTweet.IDStr)
+		infLogger.Printf("%sRaw mail generated: %s", config.Label, newTweet.IDStr)
 		messages[newTweet.IDStr] = rawMessage
 	}
 
@@ -295,7 +296,7 @@ func getMedia(
 
 	response, err := http.Get(newMedia.MediaURLHttps)
 	if err != nil {
-		errLogger.Printf("%sError downloading attachment %s %s: %v",
+		errLogger.Printf("%sError downloading attachment: %s %s %v",
 			config.Label, newMedia.IDStr, newMedia.MediaURLHttps, err)
 
 		ch <- newMedia
@@ -305,14 +306,14 @@ func getMedia(
 	defer func() {
 		err := response.Body.Close()
 		if err != nil {
-			errLogger.Printf("%sAttachment response body does not closed %s %s: %v",
+			errLogger.Printf("%sAttachment response body does not closed: %s %s %v",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps, err)
 		} else {
-			errLogger.Printf("%sAttachment response body closed %s %s",
+			errLogger.Printf("%sAttachment response body closed: %s %s",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 		}
 	}()
-	infLogger.Printf("%sAttachment %s %s downloaded",
+	infLogger.Printf("%sAttachment downloaded: %s %s",
 		config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 
 	_, fileName := filepath.Split(newMedia.MediaURLHttps)
@@ -321,7 +322,7 @@ func getMedia(
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
-		errLogger.Printf("%sError creating temporary file %s: %v",
+		errLogger.Printf("%sError creating temporary file: %s %v",
 			config.Label, tempDirPath, err)
 
 		ch <- newMedia
@@ -331,7 +332,7 @@ func getMedia(
 	defer func() {
 		err := tempFile.Close()
 		if err != nil {
-			errLogger.Printf("%sTemporary file does not closed %s: %v",
+			errLogger.Printf("%sTemporary file does not closed: %s %v",
 				config.Label, tempDirPath, err)
 		} else {
 			errLogger.Printf("%sTemporary file closed: %s",
@@ -342,7 +343,7 @@ func getMedia(
 
 	_, err = io.Copy(tempFile, response.Body)
 	if err != nil {
-		errLogger.Printf("%sError copying temporary file %s: %v",
+		errLogger.Printf("%sError copying temporary file: %s %v",
 			config.Label, tempDirPath, err)
 
 		ch <- newMedia
