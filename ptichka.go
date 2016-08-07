@@ -19,7 +19,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.9"
+const Version = "0.6.10"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -121,9 +121,11 @@ func Fly(config *config, errCh chan<- error) {
 		newIds = append(newIds, IDStr)
 	}
 
-	err = saveCache(config.CacheFile, append(oldIds, newIds...))
-	if err != nil {
-		errCh <- err
+	if len(newIds) > 0 {
+		err = saveCache(config.CacheFile, append(oldIds, newIds...))
+		if err != nil {
+			errCh <- err
+		}
 	}
 }
 
