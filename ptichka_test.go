@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestFly(t *testing.T) {
+func TestFetch(t *testing.T) {
 	utc, err := time.LoadLocation("UTC")
 	if err != nil {
 		log.Fatal(err)
@@ -31,12 +31,11 @@ func TestFly(t *testing.T) {
 	}
 }
 
-func TestTweetBody(t *testing.T) {
-	got, err := tweetBody(tweet{
+func TestText(t *testing.T) {
+	got, err := tweet{
 		IDStr:          "1234",
 		UserScreenName: "johndoe",
-		Text:           "Hello &amp; world!"})
-
+		Text:           "Hello &amp; world!"}.text()
 	if err != nil {
 		t.Errorf("Error on tweetBody(tweet{...}): %v", err)
 	}

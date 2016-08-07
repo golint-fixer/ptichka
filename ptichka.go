@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/mail"
 	"net/smtp"
 	"os"
 	"path/filepath"
@@ -20,7 +19,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.8"
+const Version = "0.6.9"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -29,6 +28,37 @@ type tweet struct {
 	Date           time.Time
 	Text           string
 	Medias         []media
+}
+
+// title returns string with label, user name and time
+// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
+func (t tweet) title(config *config) string {
+	return fmt.Sprintf(
+		"%s@%s %s",
+		config.Label,
+		t.UserScreenName,
+		t.Date.Format("2006-01-02 15:04 -0700"))
+}
+
+func (t tweet) text() (string, error) {
+	tmpl, err := template.New("tweet").Parse(
+		`@{{.UserScreenName}}
+
+{{.Text}}
+
+https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
+	if err != nil {
+		return "", err
+	}
+
+	var x bytes.Buffer
+
+	err = tmpl.Execute(&x, tweet{
+		IDStr:          t.IDStr,
+		UserScreenName: t.UserScreenName,
+		Text:           html.UnescapeString(t.Text)})
+
+	return x.String(), err
 }
 
 // media is an simplified anaconda EntityMedia.
@@ -63,29 +93,65 @@ func Fly(config *config, errCh chan<- error) {
 		return
 	}
 
-	anacondaTweets, err := fetchTweets(config)
+	messages, err := fetch(config, oldIds)
 	if err != nil {
 		errCh <- err
 		return
 	}
 
-	tweets, err := anacondaTweets.toTweets()
+	var newIds []string
+
+	// Sends mails without goroutines
+	// to preserve sort order of the mails (tweets).
+	for IDStr, message := range messages {
+		err = smtp.SendMail(
+			fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
+			smtp.PlainAuth(
+				"",
+				config.Mail.SMTP.UserName,
+				config.Mail.SMTP.Password,
+				config.Mail.SMTP.Address),
+			config.mailFrom(),
+			[]string{config.mailTo()},
+			message)
+		if err != nil {
+			errCh <- err
+			break
+		}
+		newIds = append(newIds, IDStr)
+	}
+
+	err = saveCache(config.CacheFile, append(oldIds, newIds...))
 	if err != nil {
 		errCh <- err
-		return
+	}
+}
+
+// fetch fetch home timeline and returns
+// array of the raw email messages
+// (with headers, text and attachments encoded in base64).
+func fetch(config *config, oldIds []string) (map[string][]byte, error) {
+	messages := make(map[string][]byte)
+
+	anacondaTweets, err := fetchTweets(config)
+	if err != nil {
+		return messages, err
+	}
+
+	tweets, err := anacondaTweets.toTweets()
+	if err != nil {
+		return messages, err
 	}
 
 	sort.Sort(tweets)
 
 	var newTweets tweetsByDate
-	newIds := oldIds
 	newMedias := make(map[string]media)
 
 	tempDirPath, err := ioutil.TempDir(os.TempDir(), "ptichka_")
 	defer func() { _ = os.RemoveAll(tempDirPath) }()
 	if err != nil {
-		errCh <- err
-		return
+		return messages, err
 	}
 
 	mediaCh := make(chan media)
@@ -96,7 +162,6 @@ func Fly(config *config, errCh chan<- error) {
 		}
 
 		newTweets = append(newTweets, currentTweet)
-		newIds = append(newIds, currentTweet.IDStr)
 
 		for _, m := range currentTweet.Medias {
 			newMedias[m.IDStr] = m
@@ -121,69 +186,38 @@ func Fly(config *config, errCh chan<- error) {
 	}
 
 	if len(errs) > 0 {
-		errCh <- errs[0]
-		return
+		return messages, err
 	}
 
 	for _, newTweet := range newTweets {
-		// for example "[twitter] @JohnDoe 1970-01-01 00:00 +0000"
-		subject := fmt.Sprintf(
-			"%s@%s %s",
-			config.Label,
-			newTweet.UserScreenName,
-			newTweet.Date.Format("2006-01-02 15:04 -0700"))
-
-		body, err := tweetBody(tweet{
-			IDStr:          newTweet.IDStr,
-			UserScreenName: newTweet.UserScreenName,
-			Text:           newTweet.Text})
-		if err != nil {
-			errCh <- err
-			return
-		}
-
-		from := mail.Address{
-			Name:    config.Mail.From.Name,
-			Address: config.Mail.From.Address}
-		to := mail.Address{
-			Name:    config.Mail.To.Name,
-			Address: config.Mail.To.Address}
-
 		message := email.NewEmail()
-		message.From = from.String()
-		message.To = []string{to.String()}
-		message.Subject = subject
-		message.Text = []byte(body)
+		message.From = config.mailFrom()
+		message.To = []string{config.mailTo()}
+		message.Subject = newTweet.title(config)
+
+		text, err := newTweet.text()
+		if err != nil {
+			return messages, err
+		}
+		message.Text = []byte(text)
 
 		for _, m := range newTweet.Medias {
 			// Follow the assumption that the medias id_str is unique
 			// for the whole Twitter.
 			_, err = message.AttachFile(newMedias[m.IDStr].DownloadedPath)
 			if err != nil {
-				errCh <- err
-				return
+				return messages, err
 			}
 		}
 
-		err = message.Send(
-			fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
-			smtp.PlainAuth(
-				"",
-				config.Mail.SMTP.UserName,
-				config.Mail.SMTP.Password,
-				config.Mail.SMTP.Address))
+		rawMessage, err := message.Bytes()
 		if err != nil {
-			errCh <- err
-			return
+			return messages, err
 		}
+		messages[newTweet.IDStr] = rawMessage
 	}
 
-	err = saveCache(config.CacheFile, newIds)
-	if err != nil {
-		errCh <- err
-	}
-
-	errCh <- nil
+	return messages, nil
 }
 
 func getMedia(
@@ -223,27 +257,6 @@ func getMedia(
 
 	ch <- newMedia
 	errCh <- nil
-}
-
-func tweetBody(t tweet) (string, error) {
-	tmpl, err := template.New("tweet").Parse(
-		`@{{.UserScreenName}}
-
-{{.Text}}
-
-https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
-	if err != nil {
-		return "", err
-	}
-
-	var x bytes.Buffer
-
-	err = tmpl.Execute(&x, tweet{
-		IDStr:          t.IDStr,
-		UserScreenName: t.UserScreenName,
-		Text:           html.UnescapeString(t.Text)})
-
-	return x.String(), err
 }
 
 func contains(ids []string, id string) bool {

@@ -1,6 +1,8 @@
 package ptichka
 
 import (
+	"net/mail"
+
 	"github.com/BurntSushi/toml"
 )
 
@@ -35,6 +37,22 @@ type config struct {
 		AccessToken       string `toml:"access_token"`
 		AccessTokenSecret string `toml:"access_token_secret"`
 	}
+}
+
+func (config config) mailFrom() string {
+	from := mail.Address{
+		Name:    config.Mail.From.Name,
+		Address: config.Mail.From.Address}
+
+	return from.String()
+}
+
+func (config config) mailTo() string {
+	to := mail.Address{
+		Name:    config.Mail.To.Name,
+		Address: config.Mail.To.Address}
+
+	return to.String()
 }
 
 // LoadConfig load TOML config files.
