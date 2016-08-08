@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.16"
+const Version = "0.6.17"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -250,29 +250,34 @@ func fetch(
 	}
 	infLogger.Printf("%sAttachments downloaded: %d", config.Label, len(newMedias))
 	if len(errs) > 0 {
-		errLogger.Printf("%sErrors when downloading attachments: %v", config.Label, errs)
+		errLogger.Printf("%sErrors when downloading attachments: %v",
+			config.Label, errs)
 		return messages, errs[0]
 	}
 
 	for _, newTweet := range newTweets {
-		message := email.NewEmail()
-		message.From = config.mailFrom()
-		message.To = []string{config.mailTo()}
-		message.Subject = newTweet.title(config)
-
 		text, err := newTweet.text()
 		if err != nil {
 			return messages, err
 		}
-		message.Text = []byte(text)
+
+		message := &email.Email{
+			From:    config.mailFrom(),
+			To:      []string{config.mailTo()},
+			Subject: newTweet.title(config),
+			Text:    []byte(text)}
 
 		for _, m := range newTweet.Medias {
 			// Follow the assumption that the medias id_str is unique
 			// for the whole Twitter.
 			_, err := message.AttachFile(newMedias[m.IDStr].DownloadedPath)
 			if err != nil {
+				errLogger.Printf("%sAttaching error: %s %v",
+					config.Label, newMedias[m.IDStr].DownloadedPath, err)
 				return messages, err
 			}
+			infLogger.Printf("%sAttached: %s",
+				config.Label, newMedias[m.IDStr].DownloadedPath)
 		}
 
 		rawMessage, err := message.Bytes()
