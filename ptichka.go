@@ -20,7 +20,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.17"
+const Version = "0.6.18"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {

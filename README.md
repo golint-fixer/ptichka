@@ -47,12 +47,7 @@ So if your have high flow then should process them often.
 
 ### Temporary files are not deleted properly
 
-Temporary files clutter the hard disk(
-
-### Emails sent twice
-
-If the configuration with the two accounts
-the same letter sent twice.
+Time to time the temporary files clutter the hard disk(
 
 ### SMTP with SLL/TLS not supported
 

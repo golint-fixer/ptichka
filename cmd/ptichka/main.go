@@ -54,8 +54,9 @@ func main() {
 			infHandler = ioutil.Discard
 		}
 
+		l := config
 		go ptichka.Fly(
-			&config,
+			&l,
 			errCh,
 			log.New(infHandler, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile),
 			log.New(errHandler, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile))
