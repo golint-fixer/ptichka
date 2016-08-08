@@ -28,9 +28,16 @@ func TestToTweets(t *testing.T) {
     "text": "foo bar",
     "extended_entities": {
       "Media": [
-        {"Media_url_https": "https://pbs.twimg.com/media/qwertyuiopasdfg.jpg"},
-        {"Media_url_https": ":this://is.wrong/url/should/be/rejected"},
-        {"Media_url_https": "https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}
+        {
+          "id_str": "foo",
+          "Media_url_https": "https://pbs.twimg.com/media/foo.jpg"
+        }, {
+          "id_str": "should_be_rejected",
+          "Media_url_https": ":this://is.wrong/url/should/be/rejected"
+        }, {
+          "id_str": "bar",
+          "Media_url_https": "https://pbs.twimg.com/media/bar.png"
+        }
       ]
     }
   },
@@ -41,7 +48,10 @@ func TestToTweets(t *testing.T) {
     "text": "baz xyz",
     "extended_entities": {
       "Media": [
-        {"Media_url_https": "https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}
+        {
+          "id_str": "xyz",
+          "Media_url_https": "https://pbs.twimg.com/media/xyz.gif"
+        }
       ]
     }
   }
@@ -74,8 +84,8 @@ func TestToTweets(t *testing.T) {
 			UserScreenName: "johndoe",
 			Text:           "foo bar",
 			Medias: []media{
-				{MediaURLHttps: "https://pbs.twimg.com/media/qwertyuiopasdfg.jpg"},
-				{MediaURLHttps: "https://pbs.twimg.com/media/hjklzxcvbnmqwer.png"}}},
+				{IDStr: "foo", MediaURLHttps: "https://pbs.twimg.com/media/foo.jpg"},
+				{IDStr: "bar", MediaURLHttps: "https://pbs.twimg.com/media/bar.png"}}},
 
 		tweet{
 			IDStr:          "333333333333333333",
@@ -83,7 +93,7 @@ func TestToTweets(t *testing.T) {
 			UserScreenName: "gunterschmidt",
 			Text:           "baz xyz",
 			Medias: []media{
-				{MediaURLHttps: "https://pbs.twimg.com/media/tyuiopasdfghjkl.gif"}}}}
+				{IDStr: "xyz", MediaURLHttps: "https://pbs.twimg.com/media/xyz.gif"}}}}
 
 	for i := range referenceTweets {
 		referenceTweet := referenceTweets[i]
@@ -118,16 +128,15 @@ func TestToTweets(t *testing.T) {
 		}
 
 		for j := range referenceTweet.Medias {
-			referenceMedia := referenceTweet.Medias[j].MediaURLHttps
-			ptichkaMedia := ptichkaTweet.Medias[j].MediaURLHttps
+			referenceMedia := referenceTweet.Medias[j]
+			ptichkaMedia := ptichkaTweet.Medias[j]
 
 			if referenceMedia != ptichkaMedia {
 				t.Errorf(
-					"ReferenceTweet.Medias[%d]{%q} "+
-						"=! anaconda.Tweet.ExtendedEntities.Media[%d]{%q}",
+					"ReferenceTweet.Medias[%[1]d]%q "+
+						"=! anaconda.Tweet.ExtendedEntities.Media[%[1]d]%q",
 					j,
 					referenceMedia,
-					j,
 					ptichkaMedia)
 			}
 		}
