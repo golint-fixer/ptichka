@@ -63,7 +63,7 @@ func main() {
 
 	var errs []error
 	for range configs.Accounts {
-		err = <-errCh
+		err := <-errCh
 		if err != nil {
 			errs = append(errs, err)
 		}
