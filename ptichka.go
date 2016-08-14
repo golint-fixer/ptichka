@@ -3,24 +3,26 @@ package ptichka
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/smtp"
 	"os"
 	"path/filepath"
 	"sort"
 	"text/template"
 	"time"
 
+	"github.com/BurntSushi/toml"
+
 	"gopkg.in/jordan-wright/email.v2"
 )
 
 // Version is an package version.
-const Version = "0.6.18"
+const Version = "0.6.19"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -86,9 +88,83 @@ func (a tweetsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 // Swap swaps the elements with indexes i and j.
 func (a tweetsByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
+// Ptichka is the synchronous entry point which initiate asynchronous routines
+// for fetching/sending.
+func Ptichka(
+	pathToConfig,
+	rawConfig string,
+	fetcher Fetcher,
+	sender Sender) []error {
+
+	// verboseOut, infOut, errOut *io.Writer
+	var err error
+	var errs []error
+
+	var configs *Configurations
+	if len(rawConfig) > 0 {
+		if _, err = toml.Decode(rawConfig, &configs); err != nil {
+			errs = append(errs, err)
+			return errs
+		}
+	} else if len(pathToConfig) > 0 {
+		_, err = toml.DecodeFile(pathToConfig, &configs)
+		if err != nil {
+			errs = append(errs, err)
+			return errs
+		}
+	} else {
+		errs = append(errs, errors.New("Config not provided"))
+		return errs
+	}
+
+	errCh := make(chan error)
+	for _, config := range configs.Accounts {
+		var infHandler, errHandler io.Writer
+
+		if len(config.LogFile) > 0 {
+			logFile, err := os.OpenFile(
+				config.LogFile,
+				os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+			if err != nil {
+				errs = append(errs, err)
+				return errs
+			}
+			defer func() { _ = logFile.Close() }()
+			infHandler, errHandler = logFile, logFile
+		} else {
+			infHandler = os.Stdout
+			errHandler = os.Stderr
+		}
+
+		if !config.Verbose {
+			infHandler = ioutil.Discard
+		}
+
+		l := config
+		go Fly(
+			&l,
+			fetcher,
+			sender,
+			errCh,
+			log.New(infHandler, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile),
+			log.New(errHandler, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile))
+	}
+
+	for range configs.Accounts {
+		err := <-errCh
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errs
+}
+
 // Fly fetch home timeline and sends by SMTP.
 func Fly(
 	config *configuration,
+	fetcher Fetcher,
+	sender Sender,
 	errCh chan<- error,
 	infLogger, errLogger *log.Logger) {
 
@@ -100,7 +176,7 @@ func Fly(
 
 	infLogger.Printf("%sCache loaded: %s", config.Label, config.CacheFile)
 
-	messages, err := fetch(config, oldIds, infLogger, errLogger)
+	messages, err := fetch(config, fetcher, oldIds, infLogger, errLogger)
 	if err != nil {
 		errCh <- err
 		return
@@ -115,16 +191,7 @@ func Fly(
 	var smtpErr error
 
 	for IDStr, message := range messages {
-		smtpErr = smtp.SendMail(
-			fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
-			smtp.PlainAuth(
-				"",
-				config.Mail.SMTP.UserName,
-				config.Mail.SMTP.Password,
-				config.Mail.SMTP.Address),
-			config.mailFrom(),
-			[]string{config.mailTo()},
-			message)
+		smtpErr = sender.send(config, message)
 
 		if smtpErr != nil {
 			break
@@ -167,12 +234,13 @@ func Fly(
 // (with headers, text and attachments encoded in base64).
 func fetch(
 	config *configuration,
+	fetcher Fetcher,
 	oldIds []string,
 	infLogger, errLogger *log.Logger) (map[string][]byte, error) {
 
 	messages := make(map[string][]byte)
 
-	anacondaTweets, err := fetchTweets(config)
+	anacondaTweets, err := fetcher.fetch(config)
 	if err != nil {
 		errLogger.Printf("%sTweets does not fetched", config.Label)
 		return messages, err

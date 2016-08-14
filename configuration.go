@@ -1,9 +1,9 @@
 package ptichka
 
 import (
+	"fmt"
 	"net/mail"
-
-	"github.com/BurntSushi/toml"
+	"net/smtp"
 )
 
 // Configurations ia an structure with collection of timelines configurations.
@@ -57,11 +57,25 @@ func (config configuration) mailTo() string {
 	return to.String()
 }
 
-// LoadConfig load TOML config files.
-func LoadConfig(path string) (*Configurations, error) {
-	var configs *Configurations
+// Sender is an interface with send method.
+type Sender interface {
+	send(config *configuration, msg []byte) error
+}
 
-	_, err := toml.DecodeFile(path, &configs)
+// SMTPSender has a method to send emails
+// realized through the net.smtp package.
+type SMTPSender struct{}
 
-	return configs, err
+// send method sends messages through SMTP.
+func (s *SMTPSender) send(config *configuration, msg []byte) error {
+	return smtp.SendMail(
+		fmt.Sprintf("%s:%d", config.Mail.SMTP.Address, config.Mail.SMTP.Port),
+		smtp.PlainAuth(
+			"",
+			config.Mail.SMTP.UserName,
+			config.Mail.SMTP.Password,
+			config.Mail.SMTP.Address),
+		config.mailFrom(),
+		[]string{config.mailTo()},
+		msg)
 }

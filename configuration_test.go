@@ -2,12 +2,15 @@ package ptichka
 
 import (
 	"testing"
+
+	"github.com/BurntSushi/toml"
 )
 
-func TestLoadConfig(t *testing.T) {
-	configs, err := LoadConfig(".ptichkarc.toml.example")
+func TestConfigurations(t *testing.T) {
+	var configs *Configurations
+	_, err := toml.DecodeFile(".ptichkarc.toml.example", &configs)
 	if err != nil {
-		t.Errorf("Error on LoadConfig(\".ptichkarc.toml.example\"): %v", err)
+		t.Error(err)
 	}
 
 	config := configs.Accounts[0]

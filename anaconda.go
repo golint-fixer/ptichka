@@ -10,16 +10,6 @@ import (
 
 type anacondaTweets []anaconda.Tweet
 
-func fetchTweets(config *configuration) (anacondaTweets, error) {
-	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
-	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
-	api := anaconda.NewTwitterApi(
-		config.Twitter.AccessToken,
-		config.Twitter.AccessTokenSecret)
-	anacondaTweets, err := api.GetHomeTimeline(nil)
-	return anacondaTweets, err
-}
-
 func (anacondaTweets anacondaTweets) toTweets() (tweetsByDate, error) {
 	tweets := make(tweetsByDate, len(anacondaTweets))
 	for i := range anacondaTweets {
@@ -54,4 +44,24 @@ func (anacondaTweets anacondaTweets) toTweets() (tweetsByDate, error) {
 			Medias:         medias}
 	}
 	return tweets, nil
+}
+
+// Fetcher is an interface with fetch method.
+type Fetcher interface {
+	fetch(config *configuration) (anacondaTweets, error)
+}
+
+// AnacondaFetcher has a method to download tweets
+// realized through the Anaconda package.
+type AnacondaFetcher struct{}
+
+// fetch method download Twitter home timeline.
+func (f *AnacondaFetcher) fetch(config *configuration) (anacondaTweets, error) {
+	anaconda.SetConsumerKey(config.Twitter.ConsumerKey)
+	anaconda.SetConsumerSecret(config.Twitter.ConsumerSecret)
+	api := anaconda.NewTwitterApi(
+		config.Twitter.AccessToken,
+		config.Twitter.AccessTokenSecret)
+	anacondaTweets, err := api.GetHomeTimeline(nil)
+	return anacondaTweets, err
 }
