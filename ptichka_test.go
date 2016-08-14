@@ -1,14 +1,15 @@
 package ptichka
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
 	"sort"
 	"testing"
+	"text/template"
 	"time"
 )
 
@@ -157,12 +158,12 @@ func TestPtichka(t *testing.T) {
 		t.Error(err)
 	}
 
-	var rawConfig = fmt.Sprintf(`
+	tmpl, err := template.New("config").Parse(`
 [[accounts]]
 
-  cache_file = "%s"
+  cache_file = "{{.CacheFile1}}"
   label = "[twitter1] "
-  log_file = "%s"
+  log_file = "{{.LogFile1}}"
 
   [accounts.twitter]
     consumer_key = "foo1"
@@ -188,9 +189,9 @@ func TestPtichka(t *testing.T) {
 
 [[accounts]]
 
-  cache_file = "%s"
+  cache_file = "{{.CacheFile2}}"
   label = "[twitter2] "
-  log_file = "%s"
+  log_file = "{{.LogFile2}}"
 
   [accounts.twitter]
     consumer_key = "foo2"
@@ -214,9 +215,25 @@ func TestPtichka(t *testing.T) {
       port = 25
       user_name = "to2@example.org"
 
-`, cacheFile1.Name(), logFile1.Name(), cacheFile2.Name(), logFile2.Name())
+`)
+	if err != nil {
+		t.Error(err)
+	}
 
-	errs := Ptichka("", rawConfig, &dummyFetcher{}, &dummySMTPSender{})
+	var b bytes.Buffer
+
+	err = tmpl.Execute(&b, struct {
+		CacheFile1 string
+		LogFile1   string
+		CacheFile2 string
+		LogFile2   string
+	}{
+		CacheFile1: cacheFile1.Name(),
+		LogFile1:   logFile1.Name(),
+		CacheFile2: cacheFile2.Name(),
+		LogFile2:   logFile2.Name()})
+
+	errs := Ptichka("", b.String(), &dummyFetcher{}, &dummySMTPSender{})
 	if len(errs) > 0 {
 		for _, err := range errs {
 			t.Error(err)
