@@ -214,7 +214,6 @@ func TestPtichka(t *testing.T) {
       password = "password"
       port = 25
       user_name = "to2@example.org"
-
 `)
 	if err != nil {
 		t.Error(err)
