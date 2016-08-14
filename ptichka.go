@@ -54,14 +54,14 @@ https://twitter.com/{{.UserScreenName}}/status/{{.IDStr}}`)
 		return "", err
 	}
 
-	var x bytes.Buffer
+	var b bytes.Buffer
 
-	err = tmpl.Execute(&x, tweet{
+	err = tmpl.Execute(&b, tweet{
 		IDStr:          t.IDStr,
 		UserScreenName: t.UserScreenName,
 		Text:           html.UnescapeString(t.Text)})
 
-	return x.String(), err
+	return b.String(), err
 }
 
 // media is an simplified anaconda EntityMedia.
