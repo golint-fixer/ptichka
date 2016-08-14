@@ -232,6 +232,10 @@ func TestPtichka(t *testing.T) {
 		CacheFile2: cacheFile2.Name(),
 		LogFile2:   logFile2.Name()})
 
+	if err != nil {
+		t.Error(err)
+	}
+
 	errs := Ptichka("", b.String(), &dummyFetcher{}, &dummySMTPSender{})
 	if len(errs) > 0 {
 		for _, err := range errs {
