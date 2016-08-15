@@ -45,10 +45,6 @@ So if your have high flow then should process them often.
 
 [200 messages]: https://dev.twitter.com/rest/reference/get/statuses/home_timeline#api-param-count
 
-### Temporary files are not deleted properly
-
-Time to time the temporary files clutter the hard disk(
-
 ### SMTP with SLL/TLS not supported
 
 SLL/TLS not supported but STARTTLS should work.
