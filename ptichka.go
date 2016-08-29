@@ -278,6 +278,11 @@ func fetch(
 	var tempDirPath string
 	if len(newMedias) > 0 {
 		tempDirPath, err = ioutil.TempDir(os.TempDir(), "ptichka_")
+		if err != nil {
+			errLogger.Printf("%sTemporary directory does not created: %s",
+				config.Label, tempDirPath)
+			return messages, err
+		}
 		defer func() {
 			err := os.RemoveAll(tempDirPath)
 			if err != nil {
@@ -288,11 +293,6 @@ func fetch(
 					config.Label, tempDirPath)
 			}
 		}()
-		if err != nil {
-			errLogger.Printf("%sTemporary directory does not created: %s",
-				config.Label, tempDirPath)
-			return messages, err
-		}
 		infLogger.Printf("%sTemporary directory created: %s",
 			config.Label, tempDirPath)
 	}

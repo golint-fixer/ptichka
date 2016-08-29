@@ -13,6 +13,7 @@ func TestLoadCache(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error on create temporary file: %v", err)
 	}
+	defer func() { _ = os.Remove(tempFile.Name()) }()
 
 	tempFileName := tempFile.Name()
 	if err := ioutil.WriteFile(tempFileName, jsonBlob, 0644); err != nil {
@@ -23,8 +24,6 @@ func TestLoadCache(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error on loadCache(tempFile): %v", err)
 	}
-
-	defer func() { _ = os.Remove(tempFile.Name()) }()
 
 	var got, wont string
 
