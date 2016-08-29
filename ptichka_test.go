@@ -128,36 +128,43 @@ func (e *dummySMTPSender) send(config *configuration, msg []byte) error {
 	return nil
 }
 
-// TestPtichka is an integration test.
-func TestPtichka(t *testing.T) {
+func dummyPtichka(fetcher Fetcher, sender Sender) []error {
+	var err error
+	var errs []error
+
 	cacheFile1, err := ioutil.TempFile(os.TempDir(), "ptichka_cache1")
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 	defer func() { _ = os.Remove(cacheFile1.Name()) }()
 
 	cacheFile2, err := ioutil.TempFile(os.TempDir(), "ptichka_cache2")
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 	defer func() { _ = os.Remove(cacheFile2.Name()) }()
 
 	emptyJSON := []byte("[]")
 	for _, f := range []*os.File{cacheFile1, cacheFile2} {
 		if _, err := f.Write(emptyJSON); err != nil {
-			t.Error(err)
+			errs = append(errs, err)
+			return errs
 		}
 	}
 
 	logFile1, err := ioutil.TempFile(os.TempDir(), "ptichka_log1")
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 	defer func() { _ = os.Remove(logFile1.Name()) }()
 
 	logFile2, err := ioutil.TempFile(os.TempDir(), "ptichka_log2")
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 	defer func() { _ = os.Remove(logFile2.Name()) }()
 
@@ -219,7 +226,8 @@ func TestPtichka(t *testing.T) {
       user_name = "to2@example.org"
 `)
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 
 	var configBuffer bytes.Buffer
@@ -236,10 +244,20 @@ func TestPtichka(t *testing.T) {
 		LogFile2:   logFile2.Name()})
 
 	if err != nil {
-		t.Error(err)
+		errs = append(errs, err)
+		return errs
 	}
 
-	errs := Ptichka("", configBuffer.String(), &dummyFetcher{}, &dummySMTPSender{})
+	errs = append(
+		errs,
+		Ptichka("", configBuffer.String(), &dummyFetcher{}, &dummySMTPSender{})...)
+
+	return errs
+}
+
+// TestPtichka is an integration test.
+func TestPtichka(t *testing.T) {
+	errs := dummyPtichka(&dummyFetcher{}, &dummySMTPSender{})
 	if len(errs) > 0 {
 		for _, err := range errs {
 			t.Error(err)
