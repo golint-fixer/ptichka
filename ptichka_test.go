@@ -131,15 +131,17 @@ func (e *dummySMTPSender) send(config *configuration, msg []byte) error {
 // TestPtichka is an integration test.
 func TestPtichka(t *testing.T) {
 	cacheFile1, err := ioutil.TempFile(os.TempDir(), "ptichka_cache1")
+	if err != nil {
+		t.Error(err)
+	}
 	defer func() { _ = os.Remove(cacheFile1.Name()) }()
-	if err != nil {
-		t.Error(err)
-	}
+
 	cacheFile2, err := ioutil.TempFile(os.TempDir(), "ptichka_cache2")
-	defer func() { _ = os.Remove(cacheFile2.Name()) }()
 	if err != nil {
 		t.Error(err)
 	}
+	defer func() { _ = os.Remove(cacheFile2.Name()) }()
+
 	emptyJSON := []byte("[]")
 	for _, f := range []*os.File{cacheFile1, cacheFile2} {
 		if _, err := f.Write(emptyJSON); err != nil {
@@ -148,15 +150,16 @@ func TestPtichka(t *testing.T) {
 	}
 
 	logFile1, err := ioutil.TempFile(os.TempDir(), "ptichka_log1")
+	if err != nil {
+		t.Error(err)
+	}
 	defer func() { _ = os.Remove(logFile1.Name()) }()
-	if err != nil {
-		t.Error(err)
-	}
+
 	logFile2, err := ioutil.TempFile(os.TempDir(), "ptichka_log2")
-	defer func() { _ = os.Remove(logFile2.Name()) }()
 	if err != nil {
 		t.Error(err)
 	}
+	defer func() { _ = os.Remove(logFile2.Name()) }()
 
 	tmpl, err := template.New("config").Parse(`
 [[accounts]]
@@ -219,9 +222,9 @@ func TestPtichka(t *testing.T) {
 		t.Error(err)
 	}
 
-	var b bytes.Buffer
+	var configBuffer bytes.Buffer
 
-	err = tmpl.Execute(&b, struct {
+	err = tmpl.Execute(&configBuffer, struct {
 		CacheFile1 string
 		LogFile1   string
 		CacheFile2 string
@@ -236,7 +239,7 @@ func TestPtichka(t *testing.T) {
 		t.Error(err)
 	}
 
-	errs := Ptichka("", b.String(), &dummyFetcher{}, &dummySMTPSender{})
+	errs := Ptichka("", configBuffer.String(), &dummyFetcher{}, &dummySMTPSender{})
 	if len(errs) > 0 {
 		for _, err := range errs {
 			t.Error(err)
