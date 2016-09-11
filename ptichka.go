@@ -22,7 +22,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.6.19"
+const Version = "0.6.20"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -184,7 +184,7 @@ func Fly(
 
 	infLogger.Printf("%sFetched messages: %d", config.Label, len(messages))
 
-	var newIds []string
+	newIds := make([]string, 0, len(messages))
 
 	// Sends mails without goroutines
 	// to preserve sort order of the mails (tweets).
@@ -239,6 +239,7 @@ func fetch(
 	infLogger, errLogger *log.Logger) (map[string][]byte, error) {
 
 	messages := make(map[string][]byte)
+	var err error
 
 	anacondaTweets, err := fetcher.fetch(config)
 	if err != nil {
@@ -254,7 +255,7 @@ func fetch(
 
 	sort.Sort(tweets)
 
-	var newTweets tweetsByDate
+	newTweets := make(tweetsByDate, 0, len(tweets))
 	newMedias := make(map[string]media)
 
 	mediaCh := make(chan media)
@@ -283,8 +284,8 @@ func fetch(
 				config.Label, tempDirPath)
 			return messages, err
 		}
-		defer func() {
-			err := os.RemoveAll(tempDirPath)
+		defer func(err error) {
+			err = os.RemoveAll(tempDirPath)
 			if err != nil {
 				errLogger.Printf("%sTemporary directory does not removed: %s %v",
 					config.Label, tempDirPath, err)
@@ -292,7 +293,7 @@ func fetch(
 				infLogger.Printf("%sTemporary directory removed: %s",
 					config.Label, tempDirPath)
 			}
-		}()
+		}(err)
 		infLogger.Printf("%sTemporary directory created: %s",
 			config.Label, tempDirPath)
 	}
@@ -311,7 +312,7 @@ func fetch(
 	}
 	var errs []error
 	for range newMedias {
-		err := <-mediaErrCh
+		err = <-mediaErrCh
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -338,7 +339,7 @@ func fetch(
 		for _, m := range newTweet.Medias {
 			// Follow the assumption that the medias id_str is unique
 			// for the whole Twitter.
-			_, err := message.AttachFile(newMedias[m.IDStr].DownloadedPath)
+			_, err = message.AttachFile(newMedias[m.IDStr].DownloadedPath)
 			if err != nil {
 				errLogger.Printf("%sAttaching error: %s %v",
 					config.Label, newMedias[m.IDStr].DownloadedPath, err)
@@ -371,6 +372,8 @@ func getMedia(
 	errCh chan<- error,
 	infLogger, errLogger *log.Logger) {
 
+	var err error
+
 	response, err := http.Get(newMedia.MediaURLHttps)
 	if err != nil {
 		errLogger.Printf("%sError downloading attachment: %s %s %v",
@@ -380,8 +383,8 @@ func getMedia(
 		errCh <- err
 		return
 	}
-	defer func() {
-		err := response.Body.Close()
+	defer func(err error) {
+		err = response.Body.Close()
 		if err != nil {
 			errLogger.Printf("%sAttachment response body does not closed: %s %s %v",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps, err)
@@ -389,7 +392,7 @@ func getMedia(
 			infLogger.Printf("%sAttachment response body closed: %s %s",
 				config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 		}
-	}()
+	}(err)
 	infLogger.Printf("%sAttachment downloaded: %s %s",
 		config.Label, newMedia.IDStr, newMedia.MediaURLHttps)
 
@@ -406,8 +409,8 @@ func getMedia(
 		errCh <- err
 		return
 	}
-	defer func() {
-		err := tempFile.Close()
+	defer func(err error) {
+		err = tempFile.Close()
 		if err != nil {
 			errLogger.Printf("%sTemporary file does not closed: %s %v",
 				config.Label, tempDirPath, err)
@@ -415,7 +418,7 @@ func getMedia(
 			infLogger.Printf("%sTemporary file closed: %s",
 				config.Label, tempFilePath)
 		}
-	}()
+	}(err)
 	infLogger.Printf("%sTemporary file created: %s", config.Label, tempFilePath)
 
 	_, err = io.Copy(tempFile, response.Body)

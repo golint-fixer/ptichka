@@ -8,6 +8,7 @@ import (
 
 func loadCache(path string) ([]string, error) {
 	var ids []string
+	var err error
 
 	pathExists, err := pathExists(path)
 	if err != nil {
@@ -22,7 +23,7 @@ func loadCache(path string) ([]string, error) {
 		}
 	} else {
 		jsonBlob = []byte(`[]`)
-		if err := ioutil.WriteFile(path, jsonBlob, 0644); err != nil {
+		if err = ioutil.WriteFile(path, jsonBlob, 0644); err != nil {
 			return ids, err
 		}
 	}

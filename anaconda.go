@@ -18,16 +18,17 @@ func (anacondaTweets anacondaTweets) toTweets() (tweetsByDate, error) {
 			return tweets, err
 		}
 
-		var medias []media
-		for j := range anacondaTweets[i].ExtendedEntities.Media {
-			url, err := url.Parse(
-				anacondaTweets[i].ExtendedEntities.Media[j].Media_url_https)
+		m := anacondaTweets[i].ExtendedEntities.Media
+		medias := make([]media, 0, len(m))
+		for j := range m {
+			url, err := url.Parse(m[j].Media_url_https)
 			if err == nil {
 				medias = append(medias, media{
-					IDStr:         anacondaTweets[i].ExtendedEntities.Media[j].Id_str,
+					IDStr:         m[j].Id_str,
 					MediaURLHttps: url.String()})
 			}
 		}
+
 		var text string
 		if anacondaTweets[i].RetweetedStatus == nil {
 			text = anacondaTweets[i].Text
