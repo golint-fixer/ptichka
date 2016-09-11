@@ -17,7 +17,7 @@ and sends them on your email.
 ## Install
 
 ```sh
-go get github.com/danil/ptichka/cmd/ptichka
+go get github.com/danil/ptichka
 ```
 
 Then copy `.ptichkarc.toml.example` to `/path/to/your.toml`

@@ -8,7 +8,7 @@ import (
 
 func TestConfigurations(t *testing.T) {
 	var configs *Configurations
-	_, err := toml.DecodeFile(".ptichkarc.toml.example", &configs)
+	_, err := toml.DecodeFile("../.ptichkarc.toml.example", &configs)
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,0 +1,48 @@
+[
+  {
+    "id_str": "111111111111111111",
+    "created_at": "Thu Jan 01 01:00:00 +0000 1970",
+    "user": {"screen_name": "johndoe"},
+    "text": "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqu...",
+    "retweeted_status": {
+      "user": {
+        "screen_name": "ivanivanov"
+      },
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"
+    }
+  },
+  {
+    "id_str": "222222222222222222",
+    "created_at": "Thu Jan 02 02:00:00 +0000 1970",
+    "user": {"screen_name": "johndoe"},
+    "text": "foo bar",
+    "extended_entities": {
+      "Media": [
+        {
+          "id_str": "foo",
+          "Media_url_https": "https://pbs.twimg.com/media/foo.jpg"
+        }, {
+          "id_str": "should_be_rejected",
+          "Media_url_https": ":this://is.wrong/url/should/be/rejected"
+        }, {
+          "id_str": "bar",
+          "Media_url_https": "https://pbs.twimg.com/media/bar.png"
+        }
+      ]
+    }
+  },
+  {
+    "id_str": "333333333333333333",
+    "created_at": "Thu Jan 03 03:00:00 +0000 1970",
+    "user": {"screen_name": "gunterschmidt"},
+    "text": "baz xyz",
+    "extended_entities": {
+      "Media": [
+        {
+          "id_str": "xyz",
+          "Media_url_https": "https://pbs.twimg.com/media/xyz.gif"
+        }
+      ]
+    }
+  }
+]

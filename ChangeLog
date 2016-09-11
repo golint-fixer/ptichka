@@ -1,3 +1,7 @@
+2016-09-11  Danil Kutkevich  <danil@kutkevich.org>
+
+        * main.go (main): Simplify install (go get github.com/danil/ptichka).
+
 2016-08-14  Danil Kutkevich  <danil@kutkevich.org>
 
         * anaconda.go, cmd/ptichka/main.go, configuration.go, ptichka.go:
