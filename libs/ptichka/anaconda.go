@@ -10,41 +10,41 @@ import (
 
 type anacondaTweets []anaconda.Tweet
 
-func (anacondaTweets anacondaTweets) toTweets() (tweetsByDate, error) {
-	tweets := make(tweetsByDate, len(anacondaTweets))
-	for i := range anacondaTweets {
-		date, err := time.Parse(time.RubyDate, anacondaTweets[i].CreatedAt)
+func (tweets anacondaTweets) toTweets() (tweetsByDate, error) {
+	t := make(tweetsByDate, len(tweets))
+	for i := range tweets {
+		date, err := time.Parse(time.RubyDate, tweets[i].CreatedAt)
 		if err != nil {
-			return tweets, err
+			return t, err
 		}
 
-		m := anacondaTweets[i].ExtendedEntities.Media
-		medias := make([]media, 0, len(m))
+		m := tweets[i].ExtendedEntities.Media
+		medias := make([]*media, 0, len(m))
 		for j := range m {
 			url, err := url.Parse(m[j].Media_url_https)
 			if err == nil {
-				medias = append(medias, media{
+				medias = append(medias, &media{
 					IDStr:         m[j].Id_str,
 					MediaURLHttps: url.String()})
 			}
 		}
 
 		var text string
-		if anacondaTweets[i].RetweetedStatus == nil {
-			text = anacondaTweets[i].Text
+		if tweets[i].RetweetedStatus == nil {
+			text = tweets[i].Text
 		} else {
 			text = fmt.Sprintf("RT @%s: %s",
-				anacondaTweets[i].RetweetedStatus.User.ScreenName,
-				anacondaTweets[i].RetweetedStatus.Text)
+				tweets[i].RetweetedStatus.User.ScreenName,
+				tweets[i].RetweetedStatus.Text)
 		}
-		tweets[i] = tweet{
-			IDStr:          anacondaTweets[i].IdStr,
-			UserScreenName: anacondaTweets[i].User.ScreenName,
+		t[i] = &tweet{
+			IDStr:          tweets[i].IdStr,
+			UserScreenName: tweets[i].User.ScreenName,
 			Date:           date,
 			Text:           text,
 			Medias:         medias}
 	}
-	return tweets, nil
+	return t, nil
 }
 
 // Fetcher is an interface with fetch method.
@@ -63,6 +63,6 @@ func (f *AnacondaFetcher) fetch(config *configuration) (anacondaTweets, error) {
 	api := anaconda.NewTwitterApi(
 		config.Twitter.AccessToken,
 		config.Twitter.AccessTokenSecret)
-	anacondaTweets, err := api.GetHomeTimeline(nil)
-	return anacondaTweets, err
+	tweets, err := api.GetHomeTimeline(nil)
+	return tweets, err
 }

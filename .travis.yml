@@ -25,14 +25,13 @@ script:
 - misspell -error ./* ./*/* ./*/*/* ./*/*/*/* ./*/*/*/*/* ./*/*/*/*/*/* ./*/*/*/*/*/*/*
 - go test -v ./...
 before_deploy:
-- cd $TRAVIS_BUILD_DIR/cmd/ptichka
-- go build -v -x ./...
 - cd $TRAVIS_BUILD_DIR
+- go build -v -x ./
 deploy:
   provider: releases
   api_key:
     secure: P37uqJH9ft9v5XkeMBUKoU3QvCCvQVQk1SrRtJ41ED2iQxwTgsjDSCgFneO5kNEkMt9hklHGFPtQ1Zm951uyaq/Nw85xTJwcOxBFECDikJzGAVoziVpg3Y/cKKnPnsSZqeJIopo8PBuiNe2MIxOsevOimqP28e3DU/0QrjiehGsi0K7+QfAA9+YKG9U9bSwwKSYyvwXRyGQVibFde9XHld4ZPYO2wd1Cemu89wm4gA9cygOKNoOWsIkGzItUzP2VJ7DN8+IECWCWDC953pPNBnj5L9901c/Q7aW0mxLRvlJVar78CG2u3Yh8qQcYErXngFTaWvq+O6x/rlTBb0y25ytk36FgINszn+XiVR/vGCer2ZcuxmUD9dPGZifje1WHXeq9N+P5kol4b+xGJx7In+28dLlUo7O6KlM6zuFnwhRpFneCYBzOQWAXrilez6FykW/WVuYxf5iKIWU/nL3TdbwoFBuuem1kUXTS8kASczCBJ+5q0tS6tfHzsUcc0oDazgAt1uzXgqPv9xiuxzuH0cc/aXyPzSVJTweajpuh6oF4DTjnEWbkos1dOMhZMmuqU2lkA7cktiHr25Q8iKwsy0NGBvF+hWWHrtSAbsPKdlCce3ev/ZWiOSJRti475mWPlhOuEenXpWuiqNMWT9rQftFiMP/MAkONiDqMzGEph0E=
-  file: cmd/ptichka/ptichka
+  file: ptichka
   skip_cleanup: true
   on:
     tags: true

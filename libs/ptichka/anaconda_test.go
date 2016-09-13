@@ -73,26 +73,26 @@ func TestToTweets(t *testing.T) {
 	}
 
 	referenceTweets := tweetsByDate{
-		tweet{
+		&tweet{
 			IDStr:          "111111111111111111",
 			Date:           time.Date(1970, 1, 1, 1, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
 			Text:           "RT @ivanivanov: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim"},
-		tweet{
+		&tweet{
 			IDStr:          "222222222222222222",
 			Date:           time.Date(1970, 1, 2, 2, 0, 0, 0, utc),
 			UserScreenName: "johndoe",
 			Text:           "foo bar",
-			Medias: []media{
+			Medias: []*media{
 				{IDStr: "foo", MediaURLHttps: "https://pbs.twimg.com/media/foo.jpg"},
 				{IDStr: "bar", MediaURLHttps: "https://pbs.twimg.com/media/bar.png"}}},
 
-		tweet{
+		&tweet{
 			IDStr:          "333333333333333333",
 			Date:           time.Date(1970, 1, 3, 3, 0, 0, 0, utc),
 			UserScreenName: "gunterschmidt",
 			Text:           "baz xyz",
-			Medias: []media{
+			Medias: []*media{
 				{IDStr: "xyz", MediaURLHttps: "https://pbs.twimg.com/media/xyz.gif"}}}}
 
 	for i := range referenceTweets {
@@ -131,7 +131,7 @@ func TestToTweets(t *testing.T) {
 			referenceMedia := referenceTweet.Medias[j]
 			ptichkaMedia := ptichkaTweet.Medias[j]
 
-			if referenceMedia != ptichkaMedia {
+			if *referenceMedia != *ptichkaMedia {
 				t.Errorf(
 					"ReferenceTweet.Medias[%[1]d]%q "+
 						"=! anaconda.Tweet.ExtendedEntities.Media[%[1]d]%q",

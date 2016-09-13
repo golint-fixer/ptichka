@@ -22,7 +22,7 @@ import (
 )
 
 // Version is an package version.
-const Version = "0.7.1"
+const Version = "0.7.2"
 
 // tweet is a simplified anaconda.Tweet.
 type tweet struct {
@@ -30,7 +30,7 @@ type tweet struct {
 	UserScreenName string
 	Date           time.Time
 	Text           string
-	Medias         []media
+	Medias         []*media
 }
 
 // title returns string with label, user name and time
@@ -73,7 +73,7 @@ type media struct {
 
 // tweetsByDate is a slice of tweet
 // with ability to be sorted by date from older to newer.
-type tweetsByDate []tweet
+type tweetsByDate []*tweet
 
 // <https://github.com/wskinner/anaconda/commit/d0c12d8fba671d7d5ce27d3abd1809aedcc59195>,
 // <http://nerdyworm.com/blog/2013/05/15/sorting-a-slice-of-structs-in-go/>.
@@ -140,9 +140,8 @@ func Ptichka(
 			infHandler = ioutil.Discard
 		}
 
-		l := config
 		go Fly(
-			&l,
+			config,
 			fetcher,
 			sender,
 			errCh,
@@ -256,9 +255,9 @@ func fetch(
 	sort.Sort(tweets)
 
 	newTweets := make(tweetsByDate, 0, len(tweets))
-	newMedias := make(map[string]media)
+	newMedias := make(map[string]*media)
 
-	mediaCh := make(chan media)
+	mediaCh := make(chan *media)
 	mediaErrCh := make(chan error)
 	for _, currentTweet := range tweets {
 		if contains(oldIds, currentTweet.IDStr) {
@@ -366,9 +365,9 @@ func fetch(
 
 func getMedia(
 	config *configuration,
-	newMedia media,
+	newMedia *media,
 	tempDirPath string,
-	ch chan<- media,
+	ch chan<- *media,
 	errCh chan<- error,
 	infLogger, errLogger *log.Logger) {
 

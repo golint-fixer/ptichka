@@ -20,14 +20,14 @@ func TestTweetsByDateSrot(t *testing.T) {
 	}
 
 	got := tweetsByDate{
-		tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
-		tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)},
-		tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)}}
+		&tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		&tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)},
+		&tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)}}
 
 	wont := tweetsByDate{
-		tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)},
-		tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
-		tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)}}
+		&tweet{Date: time.Date(1970, 3, 1, 1, 0, 0, 0, utc)},
+		&tweet{Date: time.Date(2000, 2, 1, 1, 0, 0, 0, utc)},
+		&tweet{Date: time.Date(2123, 1, 1, 1, 0, 0, 0, utc)}}
 
 	sort.Sort(got)
 
@@ -250,7 +250,7 @@ func dummyPtichka(fetcher Fetcher, sender Sender) []error {
 
 	errs = append(
 		errs,
-		Ptichka("", configBuffer.String(), &dummyFetcher{}, &dummySMTPSender{})...)
+		Ptichka("", configBuffer.String(), fetcher, sender)...)
 
 	return errs
 }

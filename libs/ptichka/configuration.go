@@ -8,7 +8,7 @@ import (
 
 // Configurations ia an structure with collection of timelines configurations.
 type Configurations struct {
-	Accounts []configuration
+	Accounts []*configuration
 }
 
 type configuration struct {
@@ -41,7 +41,7 @@ type configuration struct {
 	}
 }
 
-func (config configuration) mailFrom() string {
+func (config *configuration) mailFrom() string {
 	from := mail.Address{
 		Name:    config.Mail.From.Name,
 		Address: config.Mail.From.Address}
@@ -49,7 +49,7 @@ func (config configuration) mailFrom() string {
 	return from.String()
 }
 
-func (config configuration) mailTo() string {
+func (config *configuration) mailTo() string {
 	to := mail.Address{
 		Name:    config.Mail.To.Name,
 		Address: config.Mail.To.Address}
